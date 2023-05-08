@@ -151,10 +151,10 @@ async def on_guild_join(guild):
 async def on_app_command_error(interaction: discord.Interaction, error: discord.app_commands.AppCommandError) -> None:
     if isinstance(error, discord.app_commands.CommandOnCooldown):
         await interaction.response.send_message(f'This comand is on cooldown.\nTime left: `{seconds_to_minutes(error.retry_after)}`.', ephemeral = True)
-        manlogger.warning(str(error)+' '+interaction.user.name+' | '+str(interaction.user.id))
+        manlogger.warning(f'{error} {interaction.user.name} | {interaction.user.id}')
     else:
         await interaction.response.send_message(error, ephemeral = True)
-        manlogger.warning(str(error)+' '+interaction.user.name+' | '+str(interaction.user.id))
+        manlogger.warning(f'{error} {interaction.user.name} | {interaction.user.id}')
 
 
 #Functions
