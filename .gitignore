@@ -361,5 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/DBDStats/env
-/DBDStats/docker_build.bat
+/Basis/env
+/Basis/.env
