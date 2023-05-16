@@ -43,7 +43,7 @@ manlogger.info('Engine powering up...')
 #Load env
 load_dotenv()
 TOKEN = os.getenv('TOKEN')
-ownerID = os.getenv('owner_id')
+ownerID = os.getenv('OWNER_ID')
 
 
 class aclient(discord.AutoShardedClient):
