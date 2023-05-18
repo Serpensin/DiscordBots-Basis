@@ -168,6 +168,7 @@ def seconds_to_minutes(input_int):
 async def self(interaction: discord.Interaction):
     if interaction.user.id == int(ownerID):
         manlogger.info('Engine powering down...')
+        await bot.status_change(status = discord.Status.invisible)
         await interaction.response.send_message('Engine powering down...', ephemeral = True)
         await bot.close()
     else:
