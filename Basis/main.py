@@ -119,13 +119,6 @@ tree = discord.app_commands.CommandTree(bot)
 
 
 # Check if all required variables are set
-try:
-    client = discord.Client(intents=discord.Intents.default())
-    asyncio.run(client.login(TOKEN))
-    asyncio.run(client.close())
-except discord.errors.LoginFailure:
-    manlogger.critical('TOKEN is not set.')
-    sys.exit('TOKEN is not set.')
 owner_available = bool(ownerID)
 
 #Fix error on windows on shutdown
@@ -335,5 +328,10 @@ async def self(interaction: discord.Interaction, nick: str):
 
 
 
-bot.run(TOKEN, log_handler=None)
+if __name__ == '__main__':
+    try:
+        bot.run(TOKEN, log_handler=None)
+    except discord.errors.LoginFailure:
+        manlogger.critical('TOKEN is not set.')
+        sys.exit('TOKEN is not set.')
 
