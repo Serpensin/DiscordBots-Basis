@@ -16,6 +16,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 #Init
 app_folder_name = 'BOTFOLDER'
+bot_name = 'BOTNAME'
 if not os.path.exists(f'{app_folder_name}//Logs'):
     os.makedirs(f'{app_folder_name}//Logs')
 if not os.path.exists(f'{app_folder_name}//Buffer'):
@@ -28,7 +29,7 @@ logger.setLevel(logging.INFO)
 manlogger.setLevel(logging.INFO)
 logging.getLogger('discord.http').setLevel(logging.INFO)
 handler = logging.handlers.RotatingFileHandler(
-    filename = log_folder+'BotLog.log',
+    filename = f'{log_folder}{bot_name}.log',
     encoding = 'utf-8',
     maxBytes = 8 * 1024 * 1024, 
     backupCount = 5,            
@@ -199,7 +200,7 @@ if owner_available:
                         if int(self.answer.value) == 0:
                             await interaction.response.send_message(content = 'You can not use 0 as a number!', ephemeral = True)
                             return
-                        with open(log_folder+'DBDStats.log', 'r', encoding='utf8') as f:
+                        with open(f'{log_folder}{bot_name}.log', 'r', encoding='utf8') as f:
                             with open(buffer_folder+'log-lines.txt', 'w', encoding='utf8') as f2:
                                 count = 0
                                 for line in (f.readlines()[-int(self.answer.value):]):
@@ -212,11 +213,11 @@ if owner_available:
             elif choice == 'current':
                 await interaction.response.defer(ephemeral = True)
                 try:
-                    await interaction.followup.send(file=discord.File(r''+log_folder+'DBDStats.log'), ephemeral=True)
+                    await interaction.followup.send(file=discord.File(r''f'{log_folder}{bot_name}.log'), ephemeral=True)
                 except discord.HTTPException as err:
                     if err.status == 413:
                         with ZipFile(buffer_folder+'Logs.zip', mode='w', compression=ZIP_DEFLATED, compresslevel=9, allowZip64=True) as f:
-                            f.write(log_folder+'DBDStats.log')
+                            f.write(f'{log_folder}{bot_name}.log')
                         try:
                             await interaction.response.send_message(file=discord.File(r''+buffer_folder+'Logs.zip'))
                         except discord.HTTPException as err:
