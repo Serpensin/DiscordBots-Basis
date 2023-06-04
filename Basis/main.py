@@ -159,8 +159,9 @@ class Events():
 
 
 #Functions
-def seconds_to_minutes(input_int):
-    return(str(timedelta(seconds=input_int)))
+class Functions():
+    def seconds_to_minutes(input_int):
+        return(str(timedelta(seconds=input_int)))
 
  
 ##Owner Commands
