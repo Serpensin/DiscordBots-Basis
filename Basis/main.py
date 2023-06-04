@@ -132,23 +132,55 @@ def clear():
         os.system('clear')
 
 ##Events
-#Guild Remove
-@bot.event
-async def on_guild_remove(guild):
-    manlogger.info(f'I got kicked from {guild}. (ID: {guild.id})')
-#Guild Join
-@bot.event
-async def on_guild_join(guild):
-    manlogger.info(f'I joined {guild}. (ID: {guild.id})')   
-#Error
-@tree.error
-async def on_app_command_error(interaction: discord.Interaction, error: discord.app_commands.AppCommandError) -> None:
-    if isinstance(error, discord.app_commands.CommandOnCooldown):
-        await interaction.response.send_message(f'This comand is on cooldown.\nTime left: `{seconds_to_minutes(error.retry_after)}`.', ephemeral = True)
-        manlogger.warning(f'{error} {interaction.user.name} | {interaction.user.id}')
-    else:
-        await interaction.response.send_message(error, ephemeral = True)
-        manlogger.warning(f'{error} {interaction.user.name} | {interaction.user.id}')
+class Events():
+    @bot.event
+    async def on_guild_remove(guild):
+        manlogger.info(f'I got kicked from {guild}. (ID: {guild.id})')
+    
+    @bot.event
+    async def on_guild_join(guild):
+        manlogger.info(f'I joined {guild}. (ID: {guild.id})')
+        for channel in guild.text_channels:
+            if channel.permissions_for(guild.me).send_messages:
+                perms = []
+                for roles in guild.roles:
+                    if roles.permissions.manage_guild and roles.permissions.manage_roles or roles.permissions.administrator and not roles.is_bot_managed():
+                        perms.append(roles.id)
+                if perms == []:
+                    break
+                else:
+                    for role in perms: 
+                        await channel.send(f'<@&{role}>')
+                    await channel.send('Hello! I\'m DBDStats, a bot for Dead by Daylight stats. Please use /setup_help to get help with the translation setup.')
+                return
+        for member in guild.members:
+            if str(member.status) != 'offline' and member != guild.owner and not member.bot:
+                if any((role.permissions.manage_guild and role.permissions.manage_roles) or (role.permissions.administrator and not role.is_bot_managed()) for role in member.roles):
+                    try:
+                        await member.send('Hello! I\'m DBDStats, a bot for Dead by Daylight stats. Please use /setup_help to get help with the translation setup.')
+                        return
+                    except discord.Forbidden:
+                        continue
+        try:
+            await guild.owner.send('Hello! I\'m DBDStats, a bot for Dead by Daylight stats. Please use /setup_help to get help with the translation setup.')
+        except discord.Forbidden:
+            manlogger.info(f'Failed to send setup message for {guild}.')
+    
+    @tree.error
+    async def on_app_command_error(interaction: discord.Interaction, error: discord.app_commands.AppCommandError) -> None:
+        options = interaction.data.get("options")
+        option_values = ""
+        if options:
+            for option in options:
+                option_values += f"{option['name']}: {option['value']}"
+        if isinstance(error, discord.app_commands.CommandOnCooldown):
+            await interaction.response.send_message(f'This command is on cooldown.\nTime left: `{await Functions.seconds_to_minutes(error.retry_after)}`.', ephemeral=True)
+        else:
+            try:
+                await interaction.followup.send(f"{error}\n\n{option_values}", ephemeral=True)
+            except:
+                await interaction.response.send_message(f"{error}\n\n{option_values}", ephemeral=True)
+            manlogger.warning(f"{error} -> {option_values} | Invoked by {interaction.user.name} ({interaction.user.id})")
 
 
 #Functions
