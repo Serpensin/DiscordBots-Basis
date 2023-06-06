@@ -2,10 +2,12 @@
 import asyncio
 import discord
 import json
+import jsonschema
 import logging
 import logging.handlers
 import os
 import platform
+import sentry_sdk
 import sys
 import time
 from datetime import timedelta
@@ -15,6 +17,13 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 
 #Init
+load_dotenv()
+sentry_sdk.init(
+    dsn=os.getenv('SENTRY_DSN'),
+    traces_sample_rate=1.0,
+    profiles_sample_rate=1.0,
+    environment='Production'
+)
 app_folder_name = 'BOTFOLDER'
 bot_name = 'BOTNAME'
 if not os.path.exists(f'{app_folder_name}//Logs'):
@@ -23,6 +32,8 @@ if not os.path.exists(f'{app_folder_name}//Buffer'):
     os.makedirs(f'{app_folder_name}//Buffer')
 log_folder = f'{app_folder_name}//Logs//'
 buffer_folder = f'{app_folder_name}//Buffer//'
+activity_file = os.path.join(app_folder_name, 'activity.json')
+#Logger init
 logger = logging.getLogger('discord')
 manlogger = logging.getLogger('Program')
 logger.setLevel(logging.INFO)
@@ -40,11 +51,57 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 manlogger.addHandler(handler)
 manlogger.info('Engine powering up...')
-
 #Load env
-load_dotenv()
 TOKEN = os.getenv('TOKEN')
 ownerID = os.getenv('OWNER_ID')
+#Create activity.json if not exists
+class JSONValidator:
+    schema = {
+        "type" : "object",
+        "properties" : {
+            "activity_type" : {
+                "type" : "string", 
+                "enum" : ["Playing", "Streaming", "Listening", "Watching", "Competing"]
+            },
+            "activity_title" : {"type" : "string"},
+            "activity_url" : {"type" : "string"},
+            "status" : {
+                "type" : "string",
+                "enum" : ["online", "idle", "dnd", "invisible"]
+            },
+        },
+    }
+
+    default_content = {
+        "activity_type": "Playing",
+        "activity_title": "Made by Serpensin: https://gitlab.bloodygang.com/Serpensin",
+        "activity_url": "",
+        "status": "online"
+    }
+
+    def __init__(self, file_path):
+        self.file_path = file_path
+
+    def validate_and_fix_json(self):
+        if os.path.exists(self.file_path):
+            with open(self.file_path, 'r') as file:
+                try:
+                    data = json.load(file)
+                    jsonschema.validate(instance=data, schema=self.schema)  # validate the data
+                except jsonschema.exceptions.ValidationError as ve:
+                    print(f'ValidationError: {ve}')
+                    self.write_default_content()
+                except json.decoder.JSONDecodeError as jde:
+                    print(f'JSONDecodeError: {jde}')
+                    self.write_default_content()
+        else:
+            self.write_default_content()
+
+    def write_default_content(self):
+        with open(self.file_path, 'w') as file:
+            json.dump(self.default_content, file, indent=4)
+validator = JSONValidator(activity_file)
+validator.validate_and_fix_json()
 
 
 class aclient(discord.AutoShardedClient):
@@ -65,7 +122,7 @@ class aclient(discord.AutoShardedClient):
     class Presence():
         @staticmethod
         def get_activity() -> discord.Activity:
-            with open('activity.json') as f:
+            with open(activity_file) as f:
                 data = json.load(f)
                 activity_type = data['activity_type']
                 activity_title = data['activity_title']
@@ -83,7 +140,7 @@ class aclient(discord.AutoShardedClient):
     
         @staticmethod
         def get_status() -> discord.Status:
-            with open('activity.json') as f:
+            with open(activity_file) as f:
                 data = json.load(f)
                 status = data['status']
             if status == 'online':
@@ -262,7 +319,7 @@ if owner_available:
     async def self(interaction: discord.Interaction, type: str, title: str, url: str = ''):
         if interaction.user.id == int(ownerID):
             await interaction.response.defer(ephemeral = True)
-            with open('activity.json') as f:
+            with open(activity_file) as f:
                 data = json.load(f)
             if type == 'Playing':
                 data['activity_type'] = 'Playing'
@@ -280,7 +337,7 @@ if owner_available:
             elif type == 'Competing':
                 data['activity_type'] = 'Competing'
                 data['activity_title'] = title
-            with open('activity.json', 'w', encoding='utf8') as f:
+            with open(activity_file, 'w', encoding='utf8') as f:
                 json.dump(data, f, indent=2)
             await bot.change_presence(activity = bot.Presence.get_activity(), status = bot.Presence.get_status())
             await interaction.followup.send('Activity changed!', ephemeral = True)
@@ -300,12 +357,12 @@ if owner_available:
 async def self(interaction: discord.Interaction, status: str):
     if interaction.user.id == int(ownerID):
         await interaction.response.defer(ephemeral = True)
-        with open('activity.json') as f:
+        with open(activity_file) as f:
             data = json.load(f)
         data['status'] = status
-        with open('activity.json', 'w', encoding='utf8') as f:
+        with open(activity_file, 'w', encoding='utf8') as f:
             json.dump(data, f, indent=2)
-        await bot.change_presence(activity = bot.get_activity(), status = bot.get_status())
+        await bot.change_presence(activity = bot.Presence.get_activity(), status = bot.Presence.get_status())
         await interaction.followup.send('Status changed!', ephemeral = True)
     else:
         await interaction.followup.send('Only the BotOwner can use this command!', ephemeral = True)
