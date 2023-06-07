@@ -395,9 +395,12 @@ async def self(interaction: discord.Interaction, nick: str):
 
 
 if __name__ == '__main__':
-    try:
-        bot.run(TOKEN, log_handler=None)
-    except discord.errors.LoginFailure:
-        manlogger.critical('TOKEN is not set.')
-        sys.exit('TOKEN is not set.')
-
+	if not TOKEN:
+		manlogger.critical('Missing token. Please check your .env file.')
+		sys.exit('Missing token. Please check your .env file.')
+	else:
+		try:
+			bot.run(TOKEN, log_handler=None)
+		except discord.errors.LoginFailure:
+			manlogger.critical('Invalid token. Please check your .env file.')
+			sys.exit('Invalid token. Please check your .env file.')

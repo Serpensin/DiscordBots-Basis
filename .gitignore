@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 /Basis/env
 /Basis/.env
+/Basis/BOTFOLDER/activity.json
