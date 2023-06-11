@@ -10,7 +10,7 @@ import platform
 import sentry_sdk
 import sys
 import time
-from datetime import timedelta
+from datetime import timedelta, datetime
 from dotenv import load_dotenv
 from zipfile import ZIP_DEFLATED, ZipFile
 
@@ -33,6 +33,8 @@ if not os.path.exists(f'{app_folder_name}//Buffer'):
 log_folder = f'{app_folder_name}//Logs//'
 buffer_folder = f'{app_folder_name}//Buffer//'
 activity_file = os.path.join(app_folder_name, 'activity.json')
+bot_version = "1.0.0"
+
 #Logger init
 logger = logging.getLogger('discord')
 manlogger = logging.getLogger('Program')
@@ -51,9 +53,11 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 manlogger.addHandler(handler)
 manlogger.info('Engine powering up...')
+
 #Load env
 TOKEN = os.getenv('TOKEN')
 ownerID = os.getenv('OWNER_ID')
+
 #Create activity.json if not exists
 class JSONValidator:
     schema = {
@@ -154,7 +158,7 @@ class aclient(discord.AutoShardedClient):
 
 
     async def on_ready(self):
-        global owner
+        global owner, start_time
         try:
             owner = await self.fetch_user(ownerID)
             if owner is None:
@@ -170,6 +174,7 @@ class aclient(discord.AutoShardedClient):
             manlogger.info('Synced.')
             self.synced = True
             await bot.change_presence(activity = self.Presence.get_activity(), status = self.Presence.get_status())
+        start_time = datetime.now()
         manlogger.info('All systems online...')
         print('READY')
 bot = aclient()
@@ -378,6 +383,36 @@ async def self(interaction: discord.Interaction):
     await interaction.response.send_message('Pong!')
     ping = (time.monotonic() - before) * 1000
     await interaction.edit_original_response(content=f'Pong! \nCommand execution time: `{int(ping)}ms`\nPing to gateway: `{int(bot.latency * 1000)}ms`')
+
+
+#Bot Info
+@tree.command(name = 'botinfo', description = 'Get information about the bot.')
+async def self(interaction: discord.Interaction):
+    member_count = sum(guild.member_count for guild in bot.guilds)
+
+    embed = discord.Embed(
+        title=f"Informationen about {bot.user.name}",
+        color=discord.Color.blue()
+    )
+    embed.set_thumbnail(url=bot.user.avatar.url if bot.user.avatar else '')
+
+    embed.add_field(name="Created at", value=bot.user.created_at.strftime("%d.%m.%Y, %H:%M:%S"), inline=True)
+    embed.add_field(name="Bot-Version", value=bot_version, inline=True)
+    embed.add_field(name="Uptime", value=str(timedelta(seconds=int((datetime.now() - start_time).total_seconds()))), inline=True)
+
+    embed.add_field(name="Bot-Owner", value=f"<@!{ownerID}>", inline=True)
+    embed.add_field(name="\u200b", value="\u200b", inline=True)
+    embed.add_field(name="\u200b", value="\u200b", inline=True)
+
+    embed.add_field(name="Server", value=f"{len(bot.guilds)}", inline=True)
+    embed.add_field(name="Member count", value=str(member_count), inline=True)
+    embed.add_field(name="\u200b", value="\u200b", inline=True)
+
+    embed.add_field(name="Shards", value=f"{bot.shard_count}", inline=True)
+    embed.add_field(name="Shard ID", value=f"{interaction.guild.shard_id if interaction.guild else 'N/A'}", inline=True)
+    embed.add_field(name="\u200b", value="\u200b", inline=True)
+
+    await interaction.response.send_message(embed=embed)
 
 
 #Change Nickname
