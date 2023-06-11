@@ -412,6 +412,14 @@ async def self(interaction: discord.Interaction):
     embed.add_field(name="Shard ID", value=f"{interaction.guild.shard_id if interaction.guild else 'N/A'}", inline=True)
     embed.add_field(name="\u200b", value="\u200b", inline=True)
 
+    embed.add_field(name="Python-Version", value=f"{platform.python_version()}", inline=True)
+    embed.add_field(name="discord.py-Version", value=f"{discord.__version__}", inline=True)
+    embed.add_field(name="Sentry-Version", value=f"{sentry_sdk.consts.VERSION}", inline=True)
+
+    embed.add_field(name="Repo", value=f"[GitLab](https://gitlab.bloodygang.com/Serpensin/Discord-Bot-Base)", inline=True)
+    embed.add_field(name="Invite", value=f"[Invite me](https://discord.com/api/oauth2/authorize?client_id={bot.user.id}&permissions=8&scope=bot%20applications.commands)", inline=True)
+    embed.add_field(name="\u200b", value="\u200b", inline=True)  
+
     await interaction.response.send_message(embed=embed)
 
 
