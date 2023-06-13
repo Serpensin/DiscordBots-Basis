@@ -228,15 +228,16 @@ class Functions():
  
 ##Owner Commands
 #Shutdown
-@tree.command(name = 'shutdown', description = 'Savely shut down the bot.')
-async def self(interaction: discord.Interaction):
-    if interaction.user.id == int(ownerID):
-        manlogger.info('Engine powering down...')
-        await bot.change_presence(status = discord.Status.invisible)
-        await interaction.response.send_message('Engine powering down...', ephemeral = True)
-        await bot.close()
-    else:
-        await interaction.response.send_message('Only the BotOwner can use this command!', ephemeral = True)
+if owner_available:
+    @tree.command(name = 'shutdown', description = 'Savely shut down the bot.')
+    async def self(interaction: discord.Interaction):
+        if interaction.user.id == int(ownerID):
+            manlogger.info('Engine powering down...')
+            await bot.change_presence(status = discord.Status.invisible)
+            await interaction.response.send_message('Engine powering down...', ephemeral = True)
+            await bot.close()
+        else:
+            await interaction.response.send_message('Only the BotOwner can use this command!', ephemeral = True)
 
 
 #Get Logs
