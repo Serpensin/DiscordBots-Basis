@@ -212,13 +212,28 @@ class Events():
             for option in options:
                 option_values += f"{option['name']}: {option['value']}"
         if isinstance(error, discord.app_commands.CommandOnCooldown):
-            await interaction.response.send_message(f'This command is on cooldown.\nTime left: `{str(timedelta(seconds=int(error.retry_after)))}`.', ephemeral=True)
+            await interaction.response.send_message(f'This command is on cooldown.\nTime left: `{str(timedelta(seconds=int(error.retry_after)))}`', ephemeral=True)
         else:
             try:
-                await interaction.followup.send(f"{error}\n\n{option_values}", ephemeral=True)
-            except:
-                await interaction.response.send_message(f"{error}\n\n{option_values}", ephemeral=True)
-            manlogger.warning(f"{error} -> {option_values} | Invoked by {interaction.user.name} ({interaction.user.id})")
+                try:
+                    await interaction.response.send_message(f"Error! Try again.", ephemeral=True)
+                except:
+                    try:
+                        await interaction.followup.send(f"Error! Try again.", ephemeral=True)
+                    except:
+                        pass
+            except discord.Forbidden:
+                try:
+                    await interaction.followup.send(f"{error}\n\n{option_values}", ephemeral=True)
+                except discord.NotFound:
+                    try:
+                        await interaction.response.send_message(f"{error}\n\n{option_values}", ephemeral=True)
+                    except discord.NotFound:
+                        pass
+                except Exception as e:
+                    manlogger.warning(f"Unexpected error while sending message: {e}")
+            finally:
+                manlogger.warning(f"{error} -> {option_values} | Invoked by {interaction.user.name} ({interaction.user.id})")
 
 
 #Functions
