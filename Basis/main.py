@@ -118,7 +118,8 @@ class aclient(discord.AutoShardedClient):
 
 		super().__init__(owner_id = ownerID,
 							  intents = intents,
-							  status = discord.Status.invisible
+							  status = discord.Status.invisible,
+							  auto_reconnect = True
 						)
 		self.synced = False
 
