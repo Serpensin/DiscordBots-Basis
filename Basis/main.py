@@ -1,3 +1,4 @@
+print("Loading...")
 #Import
 import asyncio
 import discord
@@ -113,8 +114,8 @@ class aclient(discord.AutoShardedClient):
 	def __init__(self):
 
 		intents = discord.Intents.default()
-		intents.guild_messages = True
-		intents.members = True
+		#intents.guild_messages = True
+		#intents.members = True
 
 		super().__init__(owner_id = ownerID,
 							  intents = intents,
@@ -202,7 +203,8 @@ class aclient(discord.AutoShardedClient):
 
 
 	async def on_ready(self):
-		global owner, start_time
+		global owner, start_time, shutdown
+		shutdown = False
 		try:
 			owner = await self.fetch_user(ownerID)
 			if owner is None:
@@ -220,6 +222,7 @@ class aclient(discord.AutoShardedClient):
 			await bot.change_presence(activity = self.Presence.get_activity(), status = self.Presence.get_status())
 		start_time = datetime.now()
 		manlogger.info('All systems online...')
+		clear()
 		print('READY')
 bot = aclient()
 tree = discord.app_commands.CommandTree(bot)
@@ -249,9 +252,16 @@ class Functions():
 @tree.command(name = 'shutdown', description = 'Savely shut down the bot.')
 async def self(interaction: discord.Interaction):
 	if interaction.user.id == int(ownerID):
+		global shutdown
+		shutdown = True
 		manlogger.info('Engine powering down...')
 		await bot.change_presence(status = discord.Status.invisible)
 		await interaction.response.send_message('Engine powering down...', ephemeral = True)
+
+		tasks = [t for t in asyncio.all_tasks() if t is not asyncio.current_task()]
+		[task.cancel() for task in tasks]
+		await asyncio.gather(*tasks, return_exceptions=True)
+
 		await bot.close()
 	else:
 		await interaction.response.send_message('Only the BotOwner can use this command!', ephemeral = True)
@@ -466,3 +476,6 @@ if __name__ == '__main__':
 			error_message = 'Invalid token. Please check your .env file.'
 			manlogger.critical(error_message)
 			sys.exit(error_message)
+		except asyncio.CancelledError:
+			if shutdown:
+				pass
