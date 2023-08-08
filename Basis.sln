@@ -8,9 +8,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Projektmappenelemente", "Projektmappenelemente", "{F349F465-FF67-48FE-ABA4-F5D4301FA44B}"
 	ProjectSection(SolutionItems) = preProject
 		Basis\.env = Basis\.env
-		Basis\.env.template = Basis\.env.template
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
+		.gitlab-ci.yml.template = .gitlab-ci.yml.template
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection

@@ -24,9 +24,11 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Dockerfile" />
     <Compile Include="main.py" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include=".env.template" />
     <Content Include="requirements.txt" />
   </ItemGroup>
   <ItemGroup>
