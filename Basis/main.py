@@ -44,12 +44,12 @@ manlogger = logging.getLogger('Program')
 logger.setLevel(logging.INFO)
 manlogger.setLevel(logging.INFO)
 logging.getLogger('discord.http').setLevel(logging.INFO)
-handler = logging.handlers.RotatingFileHandler(
+handler = logging.handlers.TimedRotatingFileHandler(
     filename = f'{log_folder}{bot_name}.log',
     encoding = 'utf-8',
-    maxBytes = 8 * 1024 * 1024, 
-    backupCount = 5,            
-    mode='w')
+    when = 'midnight',
+    backupCount = 27
+    )
 dt_fmt = '%Y-%m-%d %H:%M:%S'
 formatter = logging.Formatter('[{asctime}] [{levelname:<8}] {name}: {message}', dt_fmt, style='{')
 handler.setFormatter(formatter)
