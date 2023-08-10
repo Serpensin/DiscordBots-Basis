@@ -514,7 +514,7 @@ async def self(interaction: discord.Interaction):
     embed.add_field(name="Sentry-Version", value=f"{sentry_sdk.consts.VERSION}", inline=True)
 
     embed.add_field(name="Repo", value=f"[GitLab](https://gitlab.bloodygang.com/Serpensin/Discord-Bot-Base)", inline=True)
-    embed.add_field(name="Invite", value=f"[Invite me](https://discord.com/api/oauth2/authorize?client_id={bot.user.id}&permissions=8&scope=bot%20applications.commands)", inline=True)
+    embed.add_field(name="Invite", value=f"[Invite me](https://discord.com/api/oauth2/authorize?client_id={bot.user.id}&permissions=8&scope=bot)", inline=True)
     embed.add_field(name="\u200b", value="\u200b", inline=True)  
 
     if interaction.user.id == int(ownerID):

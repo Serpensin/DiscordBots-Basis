@@ -24,7 +24,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Dockerfile" />
+    <Compile Include="Dockerfile.template" />
     <Compile Include="main.py" />
   </ItemGroup>
   <ItemGroup>
