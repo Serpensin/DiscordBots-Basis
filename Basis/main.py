@@ -14,6 +14,7 @@ import sys
 import time
 from datetime import timedelta, datetime
 from dotenv import load_dotenv
+from typing import Optional, Any
 from zipfile import ZIP_DEFLATED, ZipFile
 
 
@@ -285,6 +286,33 @@ def clear():
 class Functions():
     def seconds_to_minutes(input_int):
         return(str(timedelta(seconds=input_int)))
+
+    async def get_or_fetch(item: str, item_id: int) -> Optional[Any]:
+        """
+        Attempts to retrieve an object using the 'get_<item>' method of the bot class, and
+        if not found, attempts to retrieve it using the 'fetch_<item>' method.
+    
+        :param item: Name of the object to retrieve
+        :param item_id: ID of the object to retrieve
+        :return: Object if found, else None
+        :raises AttributeError: If the required methods are not found in the bot class
+        """
+        get_method_name = f'get_{item}'
+        fetch_method_name = f'fetch_{item}'
+    
+        get_method = getattr(bot, get_method_name, None)
+        fetch_method = getattr(bot, fetch_method_name, None)
+    
+        if get_method is None or fetch_method is None:
+            raise AttributeError(f"Methods {get_method_name} or {fetch_method_name} not found on bot object.")
+    
+        item_object = get_method(item_id)
+        if item_object is None:
+            try:
+                item_object = await fetch_method(item_id)
+            except discord.NotFound:
+                pass
+        return item_object
 
  
 
