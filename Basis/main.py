@@ -20,6 +20,11 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 
 #Init
+# print() will only print if run in debugger. pt() will always print.
+pt = print
+def print(msg):
+    if sys.gettrace() is not None:
+        pt(msg)
 discord.VoiceClient.warn_nacl = False
 load_dotenv()
 sentry_sdk.init(
@@ -264,7 +269,7 @@ class aclient(discord.AutoShardedClient):
         start_time = datetime.now()
         manlogger.info('All systems online...')
         clear()
-        print('READY')
+        pt('READY')
 bot = aclient()
 tree = discord.app_commands.CommandTree(bot)
 tree.on_error = bot.on_app_command_error
