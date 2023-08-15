@@ -393,7 +393,7 @@ class Owner():
             await __wrong_selection()
             return
         action = args[0].lower()
-        title = args[1]
+        title = ' '.join(args[1:])
         try:
             url = args[2]
         except IndexError:
