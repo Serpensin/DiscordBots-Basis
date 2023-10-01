@@ -198,7 +198,7 @@ class aclient(discord.AutoShardedClient):
 
 
     async def on_guild_join(self, guild):
-        if not self.initialized:
+        if not self.synced:
             return
         manlogger.info(f'I joined {guild}. (ID: {guild.id})')
 
@@ -243,7 +243,7 @@ class aclient(discord.AutoShardedClient):
 
 
     async def on_guild_remove(self, guild):
-        if not self.initialized:
+        if not self.synced:
             return
         manlogger.info(f'I got kicked from {guild}. (ID: {guild.id})')
 
