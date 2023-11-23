@@ -12,6 +12,7 @@ import psutil
 import sentry_sdk
 import sys
 import time
+from CustomModules.app_translation import Translator as CustomTranslator
 from datetime import timedelta, datetime
 from dotenv import load_dotenv
 from typing import Optional, Any
@@ -73,7 +74,7 @@ class JSONValidator:
         "type" : "object",
         "properties" : {
             "activity_type" : {
-                "type" : "string", 
+                "type" : "string",
                 "enum" : ["Playing", "Streaming", "Listening", "Watching", "Competing"]
             },
             "activity_title" : {"type" : "string"},
@@ -150,7 +151,7 @@ class aclient(discord.AutoShardedClient):
                 return discord.Activity(type=discord.ActivityType.watching, name=activity_title)
             elif activity_type == 'Competing':
                 return discord.Activity(type=discord.ActivityType.competing, name=activity_title)
-    
+
         @staticmethod
         def get_status() -> discord.Status:
             with open(activity_file) as f:
@@ -262,12 +263,13 @@ class aclient(discord.AutoShardedClient):
         logger.info(f'Logged in as {bot.user} (ID: {bot.user.id})')
         if not self.synced:
             manlogger.info('Syncing...')
+            await tree.set_translator(CustomTranslator())
             await tree.sync()
             manlogger.info('Synced.')
             self.synced = True
             await bot.change_presence(activity = self.Presence.get_activity(), status = self.Presence.get_status())
         start_time = datetime.now()
-        manlogger.info('All systems online...')
+        manlogger.info('All systems online.')
         clear()
         pt('READY')
 bot = aclient()
@@ -296,7 +298,7 @@ class Functions():
         """
         Attempts to retrieve an object using the 'get_<item>' method of the bot class, and
         if not found, attempts to retrieve it using the 'fetch_<item>' method.
-    
+
         :param item: Name of the object to retrieve
         :param item_id: ID of the object to retrieve
         :return: Object if found, else None
@@ -304,13 +306,13 @@ class Functions():
         """
         get_method_name = f'get_{item}'
         fetch_method_name = f'fetch_{item}'
-    
+
         get_method = getattr(bot, get_method_name, None)
         fetch_method = getattr(bot, fetch_method_name, None)
-    
+
         if get_method is None or fetch_method is None:
             raise AttributeError(f"Methods {get_method_name} or {fetch_method_name} not found on bot object.")
-    
+
         item_object = get_method(item_id)
         if item_object is None:
             try:
@@ -319,7 +321,7 @@ class Functions():
                 pass
         return item_object
 
- 
+
 
 ##Owner Commands
 class Owner():
@@ -520,7 +522,7 @@ async def self(interaction: discord.Interaction):
 
     embed.add_field(name="Repo", value=f"[GitLab](https://gitlab.bloodygang.com/Serpensin/Discord-Bot-Base)", inline=True)
     embed.add_field(name="Invite", value=f"[Invite me](https://discord.com/api/oauth2/authorize?client_id={bot.user.id}&permissions=8&scope=bot)", inline=True)
-    embed.add_field(name="\u200b", value="\u200b", inline=True)  
+    embed.add_field(name="\u200b", value="\u200b", inline=True)
 
     if interaction.user.id == int(ownerID):
         # Add CPU and RAM usage
