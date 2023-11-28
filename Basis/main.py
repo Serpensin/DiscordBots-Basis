@@ -131,6 +131,7 @@ class aclient(discord.AutoShardedClient):
                               auto_reconnect = True
                         )
         self.synced = False
+        self.initialized = False
 
 
     class Presence():
@@ -250,6 +251,8 @@ class aclient(discord.AutoShardedClient):
 
 
     async def on_ready(self):
+        if self.initialized:
+            return
         global owner, start_time, shutdown
         shutdown = False
         try:
@@ -271,6 +274,7 @@ class aclient(discord.AutoShardedClient):
         start_time = datetime.now()
         manlogger.info('All systems online.')
         clear()
+        self.initialized = True
         pt('READY')
 bot = aclient()
 tree = discord.app_commands.CommandTree(bot)
