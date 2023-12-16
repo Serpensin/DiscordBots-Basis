@@ -1,4 +1,4 @@
-FROM python:3.9.17-alpine
+FROM python:3.9.18-alpine
 
 WORKDIR /app
 
@@ -27,7 +27,7 @@ LABEL maintainer="Discord: the_devil_of_the_rhine (863687441809801246)" \
       commit=$COMMIT \
       description="Discord bot for DBD for Steam stats." \
       release=$BUILD_DATE \
-      VERSION="1.4.0" \
+      VERSION="1.0.0" \
       url="https://gitlab.bloodygang.com/Serpensin/Basis"
 
 CMD ["python3", "main.py"]
