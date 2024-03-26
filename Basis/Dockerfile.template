@@ -1,7 +1,8 @@
-FROM python:3.9.18-alpine
+FROM python:3.12.2-alpine
 
 WORKDIR /app
 
+COPY CustomModules ./CustomModules
 COPY *.py .
 COPY requirements.txt .
 
