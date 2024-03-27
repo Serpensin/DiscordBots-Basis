@@ -35,16 +35,14 @@ sentry_sdk.init(
     profiles_sample_rate=1.0,
     environment='Production'
 )
-app_folder_name = 'BOTFOLDER'
-bot_name = 'BOTNAME'
-if not os.path.exists(f'{app_folder_name}//Logs'):
-    os.makedirs(f'{app_folder_name}//Logs')
-if not os.path.exists(f'{app_folder_name}//Buffer'):
-    os.makedirs(f'{app_folder_name}//Buffer')
-log_folder = f'{app_folder_name}//Logs//'
-buffer_folder = f'{app_folder_name}//Buffer//'
-activity_file = os.path.join(app_folder_name, 'activity.json')
-bot_version = "1.0.0"
+APP_FOLDER_NAME = 'BOTFOLDER'
+BOT_NAME = 'BOTNAME'
+os.makedirs(f'{APP_FOLDER_NAME}//Logs', exist_ok=True)
+os.makedirs(f'{APP_FOLDER_NAME}//Buffer', exist_ok=True)
+LOG_FOLDER = f'{APP_FOLDER_NAME}//Logs//'
+BUFFER_FOLDER = f'{APP_FOLDER_NAME}//Buffer//'
+ACTIVITY_FILE = f'{APP_FOLDER_NAME}//activity.json'
+BOT_VERSION = "1.0.0"
 
 #Logger init
 logger = logging.getLogger('discord')
@@ -53,7 +51,7 @@ logger.setLevel(logging.INFO)
 manlogger.setLevel(logging.INFO)
 logging.getLogger('discord.http').setLevel(logging.INFO)
 handler = logging.handlers.TimedRotatingFileHandler(
-    filename = f'{log_folder}{bot_name}.log',
+    filename = f'{LOG_FOLDER}{BOT_NAME}.log',
     encoding = 'utf-8',
     when = 'midnight',
     backupCount = 27
@@ -67,7 +65,7 @@ manlogger.info('Engine powering up...')
 
 #Load env
 TOKEN = os.getenv('TOKEN')
-ownerID = os.getenv('OWNER_ID')
+OWNERID = os.getenv('OWNER_ID')
 
 #Create activity.json if not exists
 class JSONValidator:
@@ -115,7 +113,7 @@ class JSONValidator:
     def write_default_content(self):
         with open(self.file_path, 'w') as file:
             json.dump(self.default_content, file, indent=4)
-validator = JSONValidator(activity_file)
+validator = JSONValidator(ACTIVITY_FILE)
 validator.validate_and_fix_json()
 
 
@@ -126,7 +124,7 @@ class aclient(discord.AutoShardedClient):
         #intents.guild_messages = True
         #intents.members = True
 
-        super().__init__(owner_id = ownerID,
+        super().__init__(owner_id = OWNERID,
                               intents = intents,
                               status = discord.Status.invisible,
                               auto_reconnect = True
@@ -138,7 +136,7 @@ class aclient(discord.AutoShardedClient):
     class Presence():
         @staticmethod
         def get_activity() -> discord.Activity:
-            with open(activity_file) as f:
+            with open(ACTIVITY_FILE) as f:
                 data = json.load(f)
                 activity_type = data['activity_type']
                 activity_title = data['activity_title']
@@ -156,7 +154,7 @@ class aclient(discord.AutoShardedClient):
 
         @staticmethod
         def get_status() -> discord.Status:
-            with open(activity_file) as f:
+            with open(ACTIVITY_FILE) as f:
                 data = json.load(f)
                 status = data['status']
             if status == 'online':
@@ -217,7 +215,7 @@ class aclient(discord.AutoShardedClient):
                                        'shutdown - Shutdown the bot\n'
                                        '```')
 
-        if message.guild is None and message.author.id == int(ownerID):
+        if message.guild is None and message.author.id == int(OWNERID):
             args = message.content.split(' ')
             print(args)
             command, *args = args
@@ -253,14 +251,15 @@ class aclient(discord.AutoShardedClient):
 
     async def on_ready(self):
         if self.initialized:
+            await bot.change_presence(activity = self.Presence.get_activity(), status = self.Presence.get_status())
             return
         global owner, start_time, shutdown
         shutdown = False
         try:
-            owner = await self.fetch_user(ownerID)
+            owner = await self.fetch_user(OWNERID)
             if owner is None:
-                manlogger.critical(f"Invalid ownerID: {ownerID}")
-                sys.exit(f"Invalid ownerID: {ownerID}")
+                manlogger.critical(f"Invalid ownerID: {OWNERID}")
+                sys.exit(f"Invalid ownerID: {OWNERID}")
         except discord.HTTPException as e:
             manlogger.critical(f"Error fetching owner user: {e}")
             sys.exit(f"Error fetching owner user: {e}")
@@ -341,32 +340,32 @@ class Owner():
             return
         if args[0] == 'current':
             try:
-                await message.channel.send(file=discord.File(r''+log_folder+bot_name+'.log'))
+                await message.channel.send(file=discord.File(r''+LOG_FOLDER+BOT_NAME+'.log'))
             except discord.HTTPException as err:
                 if err.status == 413:
-                    with ZipFile(buffer_folder+'Logs.zip', mode='w', compression=ZIP_DEFLATED, compresslevel=9, allowZip64=True) as f:
-                        f.write(log_folder+bot_name+'.log')
+                    with ZipFile(BUFFER_FOLDER+'Logs.zip', mode='w', compression=ZIP_DEFLATED, compresslevel=9, allowZip64=True) as f:
+                        f.write(LOG_FOLDER+BOT_NAME+'.log')
                     try:
-                        await message.channel.send(file=discord.File(r''+buffer_folder+'Logs.zip'))
+                        await message.channel.send(file=discord.File(r''+BUFFER_FOLDER+'Logs.zip'))
                     except discord.HTTPException as err:
                         if err.status == 413:
                             await message.channel.send("The log is too big to be send directly.\nYou have to look at the log in your server (VPS).")
-                    os.remove(buffer_folder+'Logs.zip')
+                    os.remove(BUFFER_FOLDER+'Logs.zip')
                     return
         elif args[0] == 'folder':
-            if os.path.exists(buffer_folder+'Logs.zip'):
-                os.remove(buffer_folder+'Logs.zip')
-            with ZipFile(buffer_folder+'Logs.zip', mode='w', compression=ZIP_DEFLATED, compresslevel=9, allowZip64=True) as f:
-                for file in os.listdir(log_folder):
+            if os.path.exists(BUFFER_FOLDER+'Logs.zip'):
+                os.remove(BUFFER_FOLDER+'Logs.zip')
+            with ZipFile(BUFFER_FOLDER+'Logs.zip', mode='w', compression=ZIP_DEFLATED, compresslevel=9, allowZip64=True) as f:
+                for file in os.listdir(LOG_FOLDER):
                     if file.endswith(".zip"):
                         continue
-                    f.write(log_folder+file)
+                    f.write(LOG_FOLDER+file)
             try:
-                await message.channel.send(file=discord.File(r''+buffer_folder+'Logs.zip'))
+                await message.channel.send(file=discord.File(r''+BUFFER_FOLDER+'Logs.zip'))
             except discord.HTTPException as err:
                 if err.status == 413:
                     await message.channel.send("The folder is too big to be send directly.\nPlease get the current file, or the last X lines.")
-            os.remove(buffer_folder+'Logs.zip')
+            os.remove(BUFFER_FOLDER+'Logs.zip')
             return
         else:
             try:
@@ -378,15 +377,15 @@ class Owner():
             except ValueError:
                 await __wrong_selection()
                 return
-            with open(log_folder+bot_name+'.log', 'r', encoding='utf8') as f:
-                with open(buffer_folder+'log-lines.txt', 'w', encoding='utf8') as f2:
+            with open(LOG_FOLDER+BOT_NAME+'.log', 'r', encoding='utf8') as f:
+                with open(BUFFER_FOLDER+'log-lines.txt', 'w', encoding='utf8') as f2:
                     count = 0
                     for line in (f.readlines()[-lines:]):
                         f2.write(line)
                         count += 1
-            await message.channel.send(content = f'Here are the last {count} lines of the current logfile:', file = discord.File(r''+buffer_folder+'log-lines.txt'))
-            if os.path.exists(buffer_folder+'log-lines.txt'):
-                os.remove(buffer_folder+'log-lines.txt')
+            await message.channel.send(content = f'Here are the last {count} lines of the current logfile:', file = discord.File(r''+BUFFER_FOLDER+'log-lines.txt'))
+            if os.path.exists(BUFFER_FOLDER+'log-lines.txt'):
+                os.remove(BUFFER_FOLDER+'log-lines.txt')
             return
 
 
@@ -416,7 +415,7 @@ class Owner():
         title = ' '.join(args[1:])
         print(title)
         print(url)
-        with open(activity_file, 'r', encoding='utf8') as f:
+        with open(ACTIVITY_FILE, 'r', encoding='utf8') as f:
             data = json.load(f)
         if action == 'playing':
             data['activity_type'] = 'Playing'
@@ -441,7 +440,7 @@ class Owner():
         else:
             await __wrong_selection()
             return
-        with open(activity_file, 'w', encoding='utf8') as f:
+        with open(ACTIVITY_FILE, 'w', encoding='utf8') as f:
             json.dump(data, f, indent=2)
         await bot.change_presence(activity = bot.Presence.get_activity(), status = bot.Presence.get_status())
         await message.channel.send(f'Activity set to {action} {title}{" " + url if url else ""}.')
@@ -457,7 +456,7 @@ class Owner():
             await __wrong_selection()
             return
         action = args[0].lower()
-        with open(activity_file, 'r', encoding='utf8') as f:
+        with open(ACTIVITY_FILE, 'r', encoding='utf8') as f:
             data = json.load(f)
         if action == 'online':
             data['status'] = 'online'
@@ -470,7 +469,7 @@ class Owner():
         else:
             await __wrong_selection()
             return
-        with open(activity_file, 'w', encoding='utf8') as f:
+        with open(ACTIVITY_FILE, 'w', encoding='utf8') as f:
             json.dump(data, f, indent=2)
         await bot.change_presence(activity = bot.Presence.get_activity(), status = bot.Presence.get_status())
         await message.channel.send(f'Status set to {action}.')
@@ -515,10 +514,10 @@ async def self(interaction: discord.Interaction):
     embed.set_thumbnail(url=bot.user.avatar.url if bot.user.avatar else '')
 
     embed.add_field(name="Created at", value=bot.user.created_at.strftime("%d.%m.%Y, %H:%M:%S"), inline=True)
-    embed.add_field(name="Bot-Version", value=bot_version, inline=True)
+    embed.add_field(name="Bot-Version", value=BOT_VERSION, inline=True)
     embed.add_field(name="Uptime", value=str(timedelta(seconds=int((datetime.now() - start_time).total_seconds()))), inline=True)
 
-    embed.add_field(name="Bot-Owner", value=f"<@!{ownerID}>", inline=True)
+    embed.add_field(name="Bot-Owner", value=f"<@!{OWNERID}>", inline=True)
     embed.add_field(name="\u200b", value="\u200b", inline=True)
     embed.add_field(name="\u200b", value="\u200b", inline=True)
 
@@ -538,7 +537,7 @@ async def self(interaction: discord.Interaction):
     embed.add_field(name="Invite", value=f"[Invite me](https://discord.com/api/oauth2/authorize?client_id={bot.user.id}&permissions=8&scope=bot)", inline=True)
     embed.add_field(name="\u200b", value="\u200b", inline=True)
 
-    if interaction.user.id == int(ownerID):
+    if interaction.user.id == int(OWNERID):
         # Add CPU and RAM usage
         process = psutil.Process(os.getpid())
         cpu_usage = process.cpu_percent()
