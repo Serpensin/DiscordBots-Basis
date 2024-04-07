@@ -1,6 +1,9 @@
 print("Loading...")
 #Import
+import time
+startupTime_start = time.time()
 import asyncio
+import datetime
 import discord
 import json
 import jsonschema
@@ -11,9 +14,7 @@ import platform
 import psutil
 import sentry_sdk
 import sys
-import time
 from CustomModules.app_translation import Translator as CustomTranslator
-from datetime import timedelta, datetime
 from dotenv import load_dotenv
 from typing import Optional, Any
 from urllib.parse import urlparse
@@ -174,7 +175,7 @@ class aclient(discord.AutoShardedClient):
             for option in options:
                 option_values += f"{option['name']}: {option['value']}"
         if isinstance(error, discord.app_commands.CommandOnCooldown):
-            await interaction.response.send_message(f'This command is on cooldown.\nTime left: `{str(timedelta(seconds=int(error.retry_after)))}`', ephemeral=True)
+            await interaction.response.send_message(f'This command is on cooldown.\nTime left: `{str(datetime.timedelta(seconds=int(error.retry_after)))}`', ephemeral=True)
         else:
             try:
                 try:
@@ -271,11 +272,12 @@ class aclient(discord.AutoShardedClient):
             manlogger.info('Synced.')
             self.synced = True
             await bot.change_presence(activity = self.Presence.get_activity(), status = self.Presence.get_status())
-        start_time = datetime.now()
-        manlogger.info('All systems online.')
+        start_time = datetime.datetime.now(datetime.UTC)
         clear()
+        message = f"Initialization completed in {time.time() - startupTime_start} seconds."
+        pt(message)
+        manlogger.info(message)
         self.initialized = True
-        pt('READY')
 bot = aclient()
 tree = discord.app_commands.CommandTree(bot)
 tree.on_error = bot.on_app_command_error
@@ -532,7 +534,7 @@ async def self(interaction: discord.Interaction):
 
     embed.add_field(name="Created at", value=bot.user.created_at.strftime("%d.%m.%Y, %H:%M:%S"), inline=True)
     embed.add_field(name="Bot-Version", value=BOT_VERSION, inline=True)
-    embed.add_field(name="Uptime", value=str(timedelta(seconds=int((datetime.now() - start_time).total_seconds()))), inline=True)
+    embed.add_field(name="Uptime", value=str(datetime.timedelta(seconds=int((datetime.datetime.now(datetime.UTC) - start_time).total_seconds()))), inline=True)
 
     embed.add_field(name="Bot-Owner", value=f"<@!{OWNERID}>", inline=True)
     embed.add_field(name="\u200b", value="\u200b", inline=True)
