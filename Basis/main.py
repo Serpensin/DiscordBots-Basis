@@ -295,8 +295,25 @@ def clear():
 
 #Functions
 class Functions():
-    def seconds_to_minutes(input_int):
-        return(str(timedelta(seconds=input_int)))
+    def format_seconds(seconds):
+        years, remainder = divmod(seconds, 31536000)
+        days, remainder = divmod(remainder, 86400)
+        hours, remainder = divmod(remainder, 3600)
+        minutes, seconds = divmod(remainder, 60)
+
+        parts = []
+        if years:
+            parts.append(f"{years}y")
+        if days:
+            parts.append(f"{days}d")
+        if hours:
+            parts.append(f"{hours}h")
+        if minutes:
+            parts.append(f"{minutes}m")
+        if seconds:
+            parts.append(f"{seconds}s")
+
+        return " ".join(parts)
 
     async def get_or_fetch(item: str, item_id: int) -> Optional[Any]:
         """
