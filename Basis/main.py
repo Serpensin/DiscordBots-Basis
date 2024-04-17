@@ -13,6 +13,7 @@ import os
 import platform
 import psutil
 import sentry_sdk
+import signal
 import sys
 from CustomModules.app_translation import Translator as CustomTranslator
 from dotenv import load_dotenv
@@ -284,6 +285,18 @@ tree.on_error = bot.on_app_command_error
 
 
 
+class SignalHandler:
+    def __init__(self):
+        signal.signal(signal.SIGINT, self._shutdown)
+        signal.signal(signal.SIGTERM, self._shutdown)
+
+    def _shutdown(self, signum, frame):
+        manlogger.info('Received signal to shutdown...')
+        pt('Received signal to shutdown...')
+        bot.loop.create_task(Owner.shutdown(owner))
+
+
+
 #Fix error on windows on shutdown
 if platform.system() == 'Windows':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
@@ -493,7 +506,10 @@ class Owner():
     async def shutdown(message):
         global shutdown
         manlogger.info('Engine powering down...')
-        await message.channel.send('Engine powering down...')
+        try:
+            await message.channel.send('Engine powering down...')
+        except:
+            await owner.send('Engine powering down...')
         await bot.change_presence(status=discord.Status.invisible)
         shutdown = True
 
@@ -586,6 +602,7 @@ if __name__ == '__main__':
         manlogger.critical(error_message)
         sys.exit(error_message)
     else:
+        SignalHandler()
         try:
             bot.run(TOKEN, log_handler=None)
         except discord.errors.LoginFailure:
