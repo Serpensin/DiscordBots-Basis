@@ -175,7 +175,11 @@ class aclient(discord.AutoShardedClient):
                 except Exception as e:
                     discord_logger.warning(f"Unexpected error while sending message: {e}")
             finally:
-                discord_logger.warning(f"{error} -> {option_values} | Invoked by {interaction.user.name} ({interaction.user.id})")
+                try:
+                    program_logger.warning(f"{error} -> {option_values} | Invoked by {interaction.user.name} ({interaction.user.id}) @ {interaction.guild.name} ({interaction.guild.id}) with Language {interaction.locale[1]}")
+                except AttributeError:
+                    program_logger.warning(f"{error} -> {option_values} | Invoked by {interaction.user.name} ({interaction.user.id}) with Language {interaction.locale[1]}")
+                sentry_sdk.capture_exception(error)
 
 
     async def on_guild_join(self, guild):
@@ -248,8 +252,7 @@ class aclient(discord.AutoShardedClient):
             await bot.change_presence(activity = self.Presence.get_activity(), status = self.Presence.get_status())
         start_time = datetime.datetime.now(datetime.UTC)
         clear()
-        message = f"Initialization completed in {time.time() - startupTime_start} seconds."
-        program_logger.info(message)
+        program_logger.info(f"Initialization completed in {time.time() - startupTime_start} seconds.")
         self.initialized = True
 bot = aclient()
 tree = discord.app_commands.CommandTree(bot)
