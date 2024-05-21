@@ -1,4 +1,3 @@
-print("Loading...")
 #Import
 import time
 startupTime_start = time.time()
@@ -7,8 +6,6 @@ import datetime
 import discord
 import json
 import jsonschema
-import logging
-import logging.handlers
 import os
 import platform
 import psutil
@@ -16,6 +13,7 @@ import sentry_sdk
 import signal
 import sys
 from CustomModules.app_translation import Translator as CustomTranslator
+from CustomModules import log_handler
 from dotenv import load_dotenv
 from typing import Optional, Any
 from urllib.parse import urlparse
@@ -24,11 +22,6 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 
 #Init
-# print() will only print if run in debugger. pt() will always print.
-pt = print
-def print(msg):
-    if sys.gettrace() is not None:
-        pt(msg)
 discord.VoiceClient.warn_nacl = False
 load_dotenv()
 sentry_sdk.init(
@@ -46,28 +39,16 @@ BUFFER_FOLDER = f'{APP_FOLDER_NAME}//Buffer//'
 ACTIVITY_FILE = f'{APP_FOLDER_NAME}//activity.json'
 BOT_VERSION = "1.0.0"
 
-#Logger init
-logger = logging.getLogger('discord')
-manlogger = logging.getLogger('Program')
-logger.setLevel(logging.INFO)
-manlogger.setLevel(logging.INFO)
-logging.getLogger('discord.http').setLevel(logging.INFO)
-handler = logging.handlers.TimedRotatingFileHandler(
-    filename = f'{LOG_FOLDER}{BOT_NAME}.log',
-    encoding = 'utf-8',
-    when = 'midnight',
-    backupCount = 27
-    )
-dt_fmt = '%Y-%m-%d %H:%M:%S'
-formatter = logging.Formatter('[{asctime}] [{levelname:<8}] {name}: {message}', dt_fmt, style='{')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-manlogger.addHandler(handler)
-manlogger.info('Engine powering up...')
-
 #Load env
 TOKEN = os.getenv('TOKEN')
 OWNERID = os.getenv('OWNER_ID')
+LOG_LEVEL = os.getenv('LOG_LEVEL')
+
+#Logger init
+log_manager = log_handler.LogManager(APP_FOLDER_NAME, BOT_NAME, LOG_LEVEL)
+discord_logger = log_manager.get_logger('discord')
+program_logger = log_manager.get_logger('Program')
+program_logger.info('Engine powering up...')
 
 #Create activity.json if not exists
 class JSONValidator:
@@ -103,11 +84,8 @@ class JSONValidator:
                 try:
                     data = json.load(file)
                     jsonschema.validate(instance=data, schema=self.schema)  # validate the data
-                except jsonschema.exceptions.ValidationError as ve:
-                    print(f'ValidationError: {ve}')
-                    self.write_default_content()
-                except json.decoder.JSONDecodeError as jde:
-                    print(f'JSONDecodeError: {jde}')
+                except (jsonschema.exceptions.ValidationError, json.decoder.JSONDecodeError) as e:
+                    program_logger.error(f'ValidationError: {e}')
                     self.write_default_content()
         else:
             self.write_default_content()
@@ -195,15 +173,15 @@ class aclient(discord.AutoShardedClient):
                     except discord.NotFound:
                         pass
                 except Exception as e:
-                    manlogger.warning(f"Unexpected error while sending message: {e}")
+                    discord_logger.warning(f"Unexpected error while sending message: {e}")
             finally:
-                manlogger.warning(f"{error} -> {option_values} | Invoked by {interaction.user.name} ({interaction.user.id})")
+                discord_logger.warning(f"{error} -> {option_values} | Invoked by {interaction.user.name} ({interaction.user.id})")
 
 
     async def on_guild_join(self, guild):
         if not self.synced:
             return
-        manlogger.info(f'I joined {guild}. (ID: {guild.id})')
+        discord_logger.info(f'I joined {guild}. (ID: {guild.id})')
 
 
     async def on_message(self, message):
@@ -219,28 +197,23 @@ class aclient(discord.AutoShardedClient):
 
         if message.guild is None and message.author.id == int(OWNERID):
             args = message.content.split(' ')
-            print(args)
+            program_logger.debug(args)
             command, *args = args
             if command == 'help':
                 await __wrong_selection()
                 return
-
             elif command == 'log':
                 await Owner.log(message, args)
                 return
-
             elif command == 'activity':
                 await Owner.activity(message, args)
                 return
-
             elif command == 'status':
                 await Owner.status(message, args)
                 return
-
             elif command == 'shutdown':
                 await Owner.shutdown(message)
                 return
-
             else:
                 await __wrong_selection()
 
@@ -248,7 +221,7 @@ class aclient(discord.AutoShardedClient):
     async def on_guild_remove(self, guild):
         if not self.synced:
             return
-        manlogger.info(f'I got kicked from {guild}. (ID: {guild.id})')
+        program_logger.info(f'I got kicked from {guild}. (ID: {guild.id})')
 
 
     async def on_ready(self):
@@ -260,24 +233,23 @@ class aclient(discord.AutoShardedClient):
         try:
             owner = await self.fetch_user(OWNERID)
             if owner is None:
-                manlogger.critical(f"Invalid ownerID: {OWNERID}")
+                program_logger.critical(f"Invalid ownerID: {OWNERID}")
                 sys.exit(f"Invalid ownerID: {OWNERID}")
         except discord.HTTPException as e:
-            manlogger.critical(f"Error fetching owner user: {e}")
+            program_logger.critical(f"Error fetching owner user: {e}")
             sys.exit(f"Error fetching owner user: {e}")
-        logger.info(f'Logged in as {bot.user} (ID: {bot.user.id})')
+        discord_logger.info(f'Logged in as {bot.user} (ID: {bot.user.id})')
         if not self.synced:
-            manlogger.info('Syncing...')
+            discord_logger.info('Syncing...')
             await tree.set_translator(CustomTranslator())
             await tree.sync()
-            manlogger.info('Synced.')
+            discord_logger.info('Synced.')
             self.synced = True
             await bot.change_presence(activity = self.Presence.get_activity(), status = self.Presence.get_status())
         start_time = datetime.datetime.now(datetime.UTC)
         clear()
         message = f"Initialization completed in {time.time() - startupTime_start} seconds."
-        pt(message)
-        manlogger.info(message)
+        program_logger.info(message)
         self.initialized = True
 bot = aclient()
 tree = discord.app_commands.CommandTree(bot)
@@ -291,8 +263,7 @@ class SignalHandler:
         signal.signal(signal.SIGTERM, self._shutdown)
 
     def _shutdown(self, signum, frame):
-        manlogger.info('Received signal to shutdown...')
-        pt('Received signal to shutdown...')
+        program_logger.info('Received signal to shutdown...')
         bot.loop.create_task(Owner.shutdown(owner))
 
 
@@ -443,8 +414,8 @@ class Owner():
         action = args[0].lower()
         url = remove_and_save(args[1:])
         title = ' '.join(args[1:])
-        print(title)
-        print(url)
+        program_logger.debug(title)
+        program_logger.debug(url)
         with open(ACTIVITY_FILE, 'r', encoding='utf8') as f:
             data = json.load(f)
         if action == 'playing':
@@ -505,11 +476,12 @@ class Owner():
 
     async def shutdown(message):
         global shutdown
-        manlogger.info('Engine powering down...')
+        _message = 'Engine powering down...'
+        program_logger.info(_message)
         try:
-            await message.channel.send('Engine powering down...')
+            await message.channel.send(_message)
         except:
-            await owner.send('Engine powering down...')
+            await owner.send(_message)
         await bot.change_presence(status=discord.Status.invisible)
         shutdown = True
 
@@ -598,17 +570,15 @@ async def self(interaction: discord.Interaction, nick: str):
 
 if __name__ == '__main__':
     if not TOKEN:
-        error_message = 'Missing token. Please check your .env file.'
-        manlogger.critical(error_message)
-        sys.exit(error_message)
+        program_logger.critical('Missing token. Please check your .env file.')
+        sys.exit()
     else:
         SignalHandler()
         try:
             bot.run(TOKEN, log_handler=None)
         except discord.errors.LoginFailure:
-            error_message = 'Invalid token. Please check your .env file.'
-            manlogger.critical(error_message)
-            sys.exit(error_message)
+            program_logger.critical('Invalid token. Please check your .env file.')
+            sys.exit()
         except asyncio.CancelledError:
             if shutdown:
                 pass
