@@ -24,12 +24,6 @@ from zipfile import ZIP_DEFLATED, ZipFile
 #Init
 discord.VoiceClient.warn_nacl = False
 load_dotenv()
-sentry_sdk.init(
-    dsn=os.getenv('SENTRY_DSN'),
-    traces_sample_rate=1.0,
-    profiles_sample_rate=1.0,
-    environment='Production'
-)
 APP_FOLDER_NAME = 'BOTFOLDER'
 BOT_NAME = 'BOTNAME'
 os.makedirs(f'{APP_FOLDER_NAME}//Logs', exist_ok=True)
@@ -38,6 +32,13 @@ LOG_FOLDER = f'{APP_FOLDER_NAME}//Logs//'
 BUFFER_FOLDER = f'{APP_FOLDER_NAME}//Buffer//'
 ACTIVITY_FILE = f'{APP_FOLDER_NAME}//activity.json'
 BOT_VERSION = "1.0.0"
+sentry_sdk.init(
+    dsn=os.getenv('SENTRY_DSN'),
+    traces_sample_rate=1.0,
+    profiles_sample_rate=1.0,
+    environment='Production',
+    release=f'{BOT_NAME}@{BOT_VERSION}'
+)
 
 #Load env
 TOKEN = os.getenv('TOKEN')
