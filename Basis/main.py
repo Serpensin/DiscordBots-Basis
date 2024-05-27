@@ -500,7 +500,7 @@ class Owner():
 #Ping
 @tree.command(name = 'ping', description = 'Test, if the bot is responding.')
 @discord.app_commands.checks.cooldown(1, 30, key=lambda i: (i.user.id))
-async def self(interaction: discord.Interaction):
+async def ping(interaction: discord.Interaction):
     before = time.monotonic()
     await interaction.response.send_message('Pong!')
     ping = (time.monotonic() - before) * 1000
@@ -510,7 +510,7 @@ async def self(interaction: discord.Interaction):
 #Bot Info
 @tree.command(name = 'botinfo', description = 'Get information about the bot.')
 @discord.app_commands.checks.cooldown(1, 60, key=lambda i: (i.user.id))
-async def self(interaction: discord.Interaction):
+async def botinfo(interaction: discord.Interaction):
     member_count = sum(guild.member_count for guild in bot.guilds)
 
     embed = discord.Embed(
@@ -562,7 +562,7 @@ async def self(interaction: discord.Interaction):
 @discord.app_commands.checks.cooldown(1, 60, key=lambda i: (i.guild_id))
 @discord.app_commands.checks.has_permissions(manage_nicknames = True)
 @discord.app_commands.describe(nick='New nickname for me.')
-async def self(interaction: discord.Interaction, nick: str):
+async def change_nickname(interaction: discord.Interaction, nick: str):
     await interaction.guild.me.edit(nick=nick)
     await interaction.response.send_message(f'My new nickname is now **{nick}**.', ephemeral=True)
 
