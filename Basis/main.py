@@ -182,12 +182,10 @@ class aclient(discord.AutoShardedClient):
                     program_logger.warning(f"{error} -> {option_values} | Invoked by {interaction.user.name} ({interaction.user.id}) with Language {interaction.locale[1]}")
                 sentry_sdk.capture_exception(error)
 
-
     async def on_guild_join(self, guild):
         if not self.synced:
             return
         discord_logger.info(f'I joined {guild}. (ID: {guild.id})')
-
 
     async def on_message(self, message):
         async def __wrong_selection():
@@ -222,7 +220,6 @@ class aclient(discord.AutoShardedClient):
             else:
                 await __wrong_selection()
 
-
     async def on_guild_remove(self, guild):
         if not self.synced:
             return
@@ -240,12 +237,11 @@ class aclient(discord.AutoShardedClient):
             program_logger.critical(f"Error fetching owner user: {e}")
             sys.exit(f"Error fetching owner user: {e}")
         discord_logger.info(f'Logged in as {bot.user} (ID: {bot.user.id})')
-        if not self.synced:
-            discord_logger.info('Syncing...')
-            await tree.set_translator(CustomTranslator())
-            await tree.sync()
-            discord_logger.info('Synced.')
-            self.synced = True
+        discord_logger.info('Syncing...')
+        await tree.set_translator(CustomTranslator())
+        await tree.sync()
+        discord_logger.info('Synced.')
+        self.synced = True
 
     async def on_ready(self):
         await bot.change_presence(activity = self.Presence.get_activity(), status = self.Presence.get_status())
@@ -497,7 +493,7 @@ class Owner():
 #Ping
 @tree.command(name = 'ping', description = 'Test, if the bot is responding.')
 @discord.app_commands.checks.cooldown(1, 30, key=lambda i: (i.user.id))
-async def ping(interaction: discord.Interaction):
+async def self(interaction: discord.Interaction):
     before = time.monotonic()
     await interaction.response.send_message('Pong!')
     ping = (time.monotonic() - before) * 1000
@@ -507,7 +503,7 @@ async def ping(interaction: discord.Interaction):
 #Bot Info
 @tree.command(name = 'botinfo', description = 'Get information about the bot.')
 @discord.app_commands.checks.cooldown(1, 60, key=lambda i: (i.user.id))
-async def botinfo(interaction: discord.Interaction):
+async def self(interaction: discord.Interaction):
     member_count = sum(guild.member_count for guild in bot.guilds)
 
     embed = discord.Embed(
@@ -559,7 +555,7 @@ async def botinfo(interaction: discord.Interaction):
 @discord.app_commands.checks.cooldown(1, 60, key=lambda i: (i.guild_id))
 @discord.app_commands.checks.has_permissions(manage_nicknames = True)
 @discord.app_commands.describe(nick='New nickname for me.')
-async def change_nickname(interaction: discord.Interaction, nick: str):
+async def self(interaction: discord.Interaction, nick: str):
     await interaction.guild.me.edit(nick=nick)
     await interaction.response.send_message(f'My new nickname is now **{nick}**.', ephemeral=True)
 
