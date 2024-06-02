@@ -228,12 +228,8 @@ class aclient(discord.AutoShardedClient):
             return
         program_logger.info(f'I got kicked from {guild}. (ID: {guild.id})')
 
-
-    async def on_ready(self):
-        if self.initialized:
-            await bot.change_presence(activity = self.Presence.get_activity(), status = self.Presence.get_status())
-            return
-        global owner, start_time, shutdown
+    async def setup_hook(self):
+        global owner, shutdown
         shutdown = False
         try:
             owner = await self.fetch_user(OWNERID)
@@ -250,11 +246,16 @@ class aclient(discord.AutoShardedClient):
             await tree.sync()
             discord_logger.info('Synced.')
             self.synced = True
-            await bot.change_presence(activity = self.Presence.get_activity(), status = self.Presence.get_status())
+
+    async def on_ready(self):
+        await bot.change_presence(activity = self.Presence.get_activity(), status = self.Presence.get_status())
+        if self.initialized:
+            return
+        global start_time
         start_time = datetime.datetime.now(datetime.UTC)
-        clear()
         program_logger.info(f"Initialization completed in {time.time() - startupTime_start} seconds.")
         self.initialized = True
+        
 bot = aclient()
 tree = discord.app_commands.CommandTree(bot)
 tree.on_error = bot.on_app_command_error
@@ -275,11 +276,6 @@ class SignalHandler:
 #Fix error on windows on shutdown
 if platform.system() == 'Windows':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-def clear():
-    if platform.system() == 'Windows':
-        os.system('cls')
-    else:
-        os.system('clear')
 
 
 
