@@ -13,7 +13,7 @@
     <Name>Basis</Name>
     <RootNamespace>DBDStats</RootNamespace>
     <SuppressEnvironmentCreationPrompt>True</SuppressEnvironmentCreationPrompt>
-    <InterpreterId>MSBuild|Basis|$(MSBuildProjectFullPath)</InterpreterId>
+    <InterpreterId>MSBuild|Bot-Basis|$(MSBuildProjectFullPath)</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -38,10 +38,10 @@
     <Folder Include="CustomModules\" />
   </ItemGroup>
   <ItemGroup>
-    <Interpreter Include="..\..\..\Venvs\Basis\">
-      <Id>Basis</Id>
+    <Interpreter Include="H:\venvs\Bot-Basis\">
+      <Id>Bot-Basis</Id>
       <Version>0.0</Version>
-      <Description>Basis (Python 3.12 (64-bit))</Description>
+      <Description>Bot-Basis (Python 3.12 (64-bit))</Description>
       <InterpreterPath>Scripts\python.exe</InterpreterPath>
       <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
       <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
