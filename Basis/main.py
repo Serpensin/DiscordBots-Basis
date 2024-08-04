@@ -257,6 +257,11 @@ tree = discord.app_commands.CommandTree(bot)
 tree.on_error = bot.on_app_command_error
 
 
+#Load Modules
+from CustomModules import context_commands
+context_commands.setup(tree)
+
+
 
 class SignalHandler:
     def __init__(self):
