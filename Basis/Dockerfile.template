@@ -1,4 +1,4 @@
-FROM python:3.12.3-alpine
+FROM python:3.12.4-alpine
 
 WORKDIR /app
 
@@ -6,8 +6,8 @@ COPY CustomModules ./CustomModules
 COPY *.py .
 COPY requirements.txt .
 
-ENV TERM xterm
-ENV PYTHONUNBUFFERED 1
+ENV TERM=xterm
+ENV PYTHONUNBUFFERED=1
 
 ARG TARGETPLATFORM
 ARG BUILD_DATE
@@ -26,7 +26,7 @@ RUN apk add --no-cache --virtual .build-deps gcc musl-dev python3-dev libc-dev l
 
 LABEL maintainer="Discord: piko.piko.no.mi (970119359840284743)" \
       commit=$COMMIT \
-      description="Discord bot for DBD for Steam stats." \
+      description="Basic discord.py setup." \
       release=$BUILD_DATE \
       VERSION="1.0.0" \
       url="https://gitlab.bloodygang.com/Serpensin/Basis"
