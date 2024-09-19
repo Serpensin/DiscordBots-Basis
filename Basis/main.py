@@ -46,7 +46,7 @@ OWNERID = os.getenv('OWNER_ID')
 LOG_LEVEL = os.getenv('LOG_LEVEL')
 
 #Logger init
-log_manager = log_handler.LogManager(APP_FOLDER_NAME, BOT_NAME, LOG_LEVEL)
+log_manager = log_handler.LogManager(LOG_FOLDER, BOT_NAME, LOG_LEVEL)
 discord_logger = log_manager.get_logger('discord')
 program_logger = log_manager.get_logger('Program')
 program_logger.info('Engine powering up...')
@@ -570,6 +570,9 @@ async def self(interaction: discord.Interaction, nick: str):
 
 
 if __name__ == '__main__':
+    if sys.version_info < (3, 11):
+        program_logger.critical('Python 3.11 or higher is required.')
+        sys.exit(1)
     if not TOKEN:
         program_logger.critical('Missing token. Please check your .env file.')
         sys.exit()
