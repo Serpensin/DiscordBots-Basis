@@ -1,4 +1,4 @@
-#Import
+﻿#Import
 import time
 startupTime_start = time.time()
 import asyncio
@@ -12,6 +12,7 @@ import psutil
 import sentry_sdk
 import signal
 import sys
+from aiohttp import web
 from CustomModules.app_translation import Translator as CustomTranslator
 from CustomModules import log_handler
 from dotenv import load_dotenv
@@ -247,6 +248,7 @@ class aclient(discord.AutoShardedClient):
         await bot.change_presence(activity = self.Presence.get_activity(), status = self.Presence.get_status())
         if self.initialized:
             return
+        bot.loop.create_task(Tasks.health_server())
         global start_time
         start_time = datetime.datetime.now(datetime.UTC)
         program_logger.info(f"Initialization completed in {time.time() - startupTime_start} seconds.")
@@ -261,6 +263,23 @@ tree.on_error = bot.on_app_command_error
 from CustomModules import context_commands
 context_commands.setup(tree)
 
+
+
+class Tasks():
+    async def health_server():
+        async def __health_check(request):
+            return web.Response(text="Healthy")
+
+        app = web.Application()
+        app.router.add_get('/health', __health_check)
+        runner = web.AppRunner(app)
+        await runner.setup()
+        site = web.TCPSite(runner, '0.0.0.0', 5000)
+        try:
+            await site.start()
+        except OSError as e:
+            program_logger.warning(f'Error while starting health server: {e}')
+            program_logger.debug(f'Error while starting health server: {e}')
 
 
 class SignalHandler:
