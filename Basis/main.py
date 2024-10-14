@@ -45,6 +45,7 @@ sentry_sdk.init(
 TOKEN = os.getenv('TOKEN')
 OWNERID = os.getenv('OWNER_ID')
 LOG_LEVEL = os.getenv('LOG_LEVEL')
+SUPPORTID = os.getenv('SUPPORT_SERVER')
 
 #Logger init
 log_manager = log_handler.LogManager(LOG_FOLDER, BOT_NAME, LOG_LEVEL)
@@ -348,6 +349,37 @@ class Functions():
                 pass
         return item_object
 
+    async def create_support_invite(interaction):
+        try:
+            guild = bot.get_guild(int(SUPPORTID))
+        except ValueError:
+            return "Could not find support guild."
+        if guild is None:
+            return "Could not find support guild."
+        if not guild.text_channels:
+            return "Support guild has no text channels."
+        try:
+            member = await guild.fetch_member(interaction.user.id)
+        except discord.NotFound:
+            member = None
+        if member is not None:
+            return "You are already in the support guild."
+        channels: discord.TextChannel = guild.text_channels
+        for channel in channels:
+            try:
+                invite: discord.Invite = await channel.create_invite(
+                    reason=f"Created invite for {interaction.user.name} from server {interaction.guild.name} ({interaction.guild_id})",
+                    max_age=60,
+                    max_uses=1,
+                    unique=True
+                )
+                return invite.url
+            except discord.Forbidden:
+                continue
+            except discord.HTTPException:
+                continue
+        return "Could not create invite. There is either no text-channel, or I don't have the rights to create an invite."
+
 
 
 ##Owner Commands
@@ -583,6 +615,16 @@ async def self(interaction: discord.Interaction, nick: str):
     await interaction.guild.me.edit(nick=nick)
     await interaction.response.send_message(f'My new nickname is now **{nick}**.', ephemeral=True)
 
+
+#Support Invite
+@tree.command(name = 'support', description = 'Get invite to our support server.')
+@discord.app_commands.checks.cooldown(1, 60, key=lambda i: (i.user.id))
+async def support(interaction: discord.Interaction):
+        if str(interaction.guild.id) != SUPPORTID:
+            await interaction.response.defer(ephemeral = True)
+            await interaction.followup.send(await Functions.create_support_invite(interaction), ephemeral = True)
+        else:
+            await interaction.response.send_message('You are already in our support server!', ephemeral = True)
 
 
 
