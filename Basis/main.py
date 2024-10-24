@@ -83,7 +83,7 @@ class JSONValidator:
 
     def validate_and_fix_json(self):
         if os.path.exists(self.file_path):
-            with open(self.file_path, 'r') as file:
+            with open(self.file_path, 'r', encoding='utf-8') as file:
                 try:
                     data = json.load(file)
                     jsonschema.validate(instance=data, schema=self.schema)  # validate the data
@@ -94,7 +94,7 @@ class JSONValidator:
             self.write_default_content()
 
     def write_default_content(self):
-        with open(self.file_path, 'w') as file:
+        with open(self.file_path, 'w', encoding='utf-8') as file:
             json.dump(self.default_content, file, indent=4)
 validator = JSONValidator(ACTIVITY_FILE)
 validator.validate_and_fix_json()
