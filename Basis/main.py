@@ -23,7 +23,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 
 #Init
-discord.VoiceClient.warn_nacl = False
+discord.VoiceClient.warn_nacl = False # Delete this line if you want to use voice
 load_dotenv()
 APP_FOLDER_NAME = 'BOTFOLDER'
 BOT_NAME = 'BOTNAME'
@@ -204,23 +204,24 @@ class aclient(discord.AutoShardedClient):
             args = message.content.split(' ')
             program_logger.debug(args)
             command, *args = args
-            if command == 'help':
-                await __wrong_selection()
-                return
-            elif command == 'log':
-                await Owner.log(message, args)
-                return
-            elif command == 'activity':
-                await Owner.activity(message, args)
-                return
-            elif command == 'status':
-                await Owner.status(message, args)
-                return
-            elif command == 'shutdown':
-                await Owner.shutdown(message)
-                return
-            else:
-                await __wrong_selection()
+            match command:
+                case 'help':
+                    await __wrong_selection()
+                    return
+                case 'log':
+                    await Owner.log(message, args)
+                    return
+                case 'activity':
+                    await Owner.activity(message, args)
+                    return
+                case 'status':
+                    await Owner.status(message, args)
+                    return
+                case 'shutdown':
+                    await Owner.shutdown(message)
+                    return
+                case _:
+                    await __wrong_selection()
 
     async def on_guild_remove(self, guild):
         if not self.synced:
