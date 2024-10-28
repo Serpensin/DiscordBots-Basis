@@ -96,8 +96,7 @@ class JSONValidator:
     def write_default_content(self):
         with open(self.file_path, 'w', encoding='utf-8') as file:
             json.dump(self.default_content, file, indent=4)
-validator = JSONValidator(ACTIVITY_FILE)
-validator.validate_and_fix_json()
+JSONValidator(ACTIVITY_FILE).validate_and_fix_json()
 
 
 class aclient(discord.AutoShardedClient):
