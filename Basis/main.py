@@ -155,32 +155,65 @@ class aclient(discord.AutoShardedClient):
         if options:
             for option in options:
                 option_values += f"{option['name']}: {option['value']}"
+
         if isinstance(error, discord.app_commands.CommandOnCooldown):
-            await interaction.response.send_message(f'This command is on cooldown.\nTime left: `{str(datetime.timedelta(seconds=int(error.retry_after)))}`', ephemeral=True)
+            await interaction.response.send_message(
+                f'This command is on cooldown.\nTime left: `{str(datetime.timedelta(seconds=int(error.retry_after)))}`',
+                ephemeral=True
+            )
+        elif isinstance(error, discord.app_commands.MissingPermissions):
+            missing_permissions = [perm.replace("_", " ").capitalize() for perm in error.missing_permissions]
+            await interaction.response.send_message(
+                f"You are missing the following permissions to execute this command: {', '.join(missing_permissions)}",
+                ephemeral=True
+            )
         else:
             try:
                 try:
-                    await interaction.response.send_message(f"Error! Try again.", ephemeral=True)
+                    await interaction.response.send_message("Error! Try again.", ephemeral=True)
                 except:
                     try:
-                        await interaction.followup.send(f"Error! Try again.", ephemeral=True)
+                        await interaction.followup.send("Error! Try again.", ephemeral=True)
                     except:
                         pass
             except discord.Forbidden:
+                missing_permissions = []
+                bot_member = interaction.guild.me
+                if bot_member:
+                    for perm, value in bot_member.guild_permissions:
+                        if not value:
+                            missing_permissions.append(perm.replace("_", " ").capitalize())
+
+                missing_text = (
+                    f"I am missing the following permissions: {', '.join(missing_permissions)}"
+                    if missing_permissions
+                    else "I am missing required permissions."
+                )
+
                 try:
-                    await interaction.followup.send(f"{error}\n\n{option_values}", ephemeral=True)
+                    await interaction.followup.send(
+                        f"{error}\n\n{missing_text}\n\n{option_values}",
+                        ephemeral=True
+                    )
                 except discord.NotFound:
                     try:
-                        await interaction.response.send_message(f"{error}\n\n{option_values}", ephemeral=True)
+                        await interaction.response.send_message(
+                            f"{error}\n\n{missing_text}\n\n{option_values}",
+                            ephemeral=True
+                        )
                     except discord.NotFound:
                         pass
                 except Exception as e:
                     discord_logger.warning(f"Unexpected error while sending message: {e}")
             finally:
                 try:
-                    program_logger.warning(f"{error} -> {option_values} | Invoked by {interaction.user.name} ({interaction.user.id}) @ {interaction.guild.name} ({interaction.guild.id}) with Language {interaction.locale[1]}")
+                    program_logger.warning(
+                        f"{error} -> {option_values} | Invoked by {interaction.user.name} ({interaction.user.id}) @ {interaction.guild.name} ({interaction.guild.id}) with Language {interaction.locale[1]}"
+                    )
                 except AttributeError:
-                    program_logger.warning(f"{error} -> {option_values} | Invoked by {interaction.user.name} ({interaction.user.id}) with Language {interaction.locale[1]}")
+                    program_logger.warning(
+                        f"{error} -> {option_values} | Invoked by {interaction.user.name} ({interaction.user.id}) with Language {interaction.locale[1]}"
+                    )
                 sentry_sdk.capture_exception(error)
 
     async def on_guild_join(self, guild):
