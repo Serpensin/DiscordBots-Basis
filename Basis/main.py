@@ -649,6 +649,7 @@ async def self(interaction: discord.Interaction):
 @discord.app_commands.checks.cooldown(1, 60, key=lambda i: (i.guild_id))
 @discord.app_commands.checks.has_permissions(manage_nicknames = True)
 @discord.app_commands.describe(nick='New nickname for me.')
+@discord.app_commands.guild_only
 async def self(interaction: discord.Interaction, nick: str):
     await interaction.guild.me.edit(nick=nick)
     await interaction.response.send_message(f'My new nickname is now **{nick}**.', ephemeral=True)
