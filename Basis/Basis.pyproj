@@ -13,7 +13,8 @@
     <Name>Basis</Name>
     <RootNamespace>DBDStats</RootNamespace>
     <SuppressEnvironmentCreationPrompt>True</SuppressEnvironmentCreationPrompt>
-    <InterpreterId>MSBuild|BotBasic|$(MSBuildProjectFullPath)</InterpreterId>
+    <InterpreterId>
+    </InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -27,7 +28,7 @@
     <Compile Include="CustomModules\app_translation.py" />
     <Compile Include="CustomModules\context_commands.py" />
     <Compile Include="CustomModules\log_handler.py" />
-    <Compile Include="Dockerfile.template" />
+    <Compile Include="Dockerfile" />
     <Compile Include="main.py" />
     <Compile Include="__init__.py" />
   </ItemGroup>
@@ -37,17 +38,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CustomModules\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Interpreter Include="H:\venvs\BotBasic\">
-      <Id>BotBasic</Id>
-      <Version>0.0</Version>
-      <Description>BotBasic (Python 3.12 (64-bit))</Description>
-      <InterpreterPath>Scripts\python.exe</InterpreterPath>
-      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
-      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
-      <Architecture>X64</Architecture>
-    </Interpreter>
+    <Folder Include="dfhg\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
