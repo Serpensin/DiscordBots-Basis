@@ -37,7 +37,7 @@ jobs:
           --no-cache \
           --compress \
           --platform ${{ matrix.platform }} \
-          --tag $IMAGE_NAME:latest-${{ PLATFORM_TAG }} \
-          --tag $IMAGE_NAME:$(date +%s)-${{ PLATFORM_TAG }} \
+          --tag $IMAGE_NAME:latest-${PLATFORM_TAG} \
+          --tag $IMAGE_NAME:$(date +%s)-${PLATFORM_TAG} \
           --push ./Basis
       shell: bash
