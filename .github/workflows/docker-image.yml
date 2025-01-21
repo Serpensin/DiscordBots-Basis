@@ -7,9 +7,11 @@ on:
     branches: [ "master" ]
 
 jobs:
-
   build-and-push:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: [linux/386, linux/amd64, linux/arm/v6, linux/arm/v7, linux/arm64/v8, linux/ppc64le, linux/s390x]
 
     steps:
     - name: Checkout Code
@@ -33,8 +35,8 @@ jobs:
         docker buildx build \
           --no-cache \
           --compress \
-          --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64/v8,linux/ppc64le,linux/s390x \
-          --tag $IMAGE_NAME:latest \
-          --tag $IMAGE_NAME:$(date +%s) \
+          --platform ${{ matrix.platform }} \
+          --tag $IMAGE_NAME:latest-${{ matrix.platform }} \
+          --tag $IMAGE_NAME:$(date +%s)-${{ matrix.platform }} \
           --push ./Basis
       shell: bash
