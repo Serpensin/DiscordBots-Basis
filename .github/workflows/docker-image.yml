@@ -30,7 +30,7 @@ jobs:
         REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
         REPO_NAME=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')
         IMAGE_NAME="ghcr.io/$REPO_OWNER/$REPO_NAME"
-        
+        pwd
         docker buildx build \
           --no-cache \
           --compress \
