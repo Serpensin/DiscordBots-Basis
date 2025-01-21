@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ "master" ]
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -40,4 +44,31 @@ jobs:
           --tag $IMAGE_NAME:latest-${PLATFORM_TAG} \
           --tag $IMAGE_NAME:$(date +%s)-${PLATFORM_TAG} \
           --push ./Basis
+      shell: bash
+
+  create-multiarch-latest:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    steps:
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create Multi-Architecture Latest Tag
+      run: |
+        REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+        REPO_NAME=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')
+        IMAGE_NAME="ghcr.io/$REPO_OWNER/$REPO_NAME"
+        docker buildx imagetools create \
+          --tag $IMAGE_NAME:latest \
+          $IMAGE_NAME:linux-386 \
+          $IMAGE_NAME:linux-amd64 \
+          $IMAGE_NAME:linux-arm-v6 \
+          $IMAGE_NAME:linux-arm-v7 \
+          $IMAGE_NAME:linux-arm64-v8 \
+          $IMAGE_NAME:linux-ppc64le \
+          $IMAGE_NAME:linux-s390x
       shell: bash
