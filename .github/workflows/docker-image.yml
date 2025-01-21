@@ -32,11 +32,12 @@ jobs:
         REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
         REPO_NAME=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')
         IMAGE_NAME="ghcr.io/$REPO_OWNER/$REPO_NAME"
+        PLATFORM_TAG=$(echo "${{ matrix.platform }}" | tr '/' '-')
         docker buildx build \
           --no-cache \
           --compress \
           --platform ${{ matrix.platform }} \
-          --tag $IMAGE_NAME:latest-${{ matrix.platform }} \
-          --tag $IMAGE_NAME:$(date +%s)-${{ matrix.platform }} \
+          --tag $IMAGE_NAME:latest-${{ PLATFORM_TAG }} \
+          --tag $IMAGE_NAME:$(date +%s)-${{ PLATFORM_TAG }} \
           --push ./Basis
       shell: bash
