@@ -33,7 +33,7 @@ jobs:
         docker buildx build \
           --no-cache \
           --compress \
-          --platform linux/amd64,linux/arm/v7,linux/arm64/v8,linux/ppc64le,linux/s390x \
+          --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64/v8 \
           --tag $IMAGE_NAME:latest \
           --tag $IMAGE_NAME:$(date +%s) \
           --push ./Basis
