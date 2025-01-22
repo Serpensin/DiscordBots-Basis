@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        platform: [linux/386, linux/amd64, linux/arm/v6, linux/arm/v7, linux/arm64/v8, linux/ppc64le, linux/s390x]
+        platform: [linux/386, linux/amd64, linux/arm/v7, linux/arm64/v8]
 
     steps:
     - name: Checkout Code
@@ -41,7 +41,6 @@ jobs:
           --compress \
           --platform ${{ matrix.platform }} \
           --tag $IMAGE_NAME:latest-${PLATFORM_TAG} \
-          --tag $IMAGE_NAME:$(date +%s)-${PLATFORM_TAG} \
           --push ./Basis
       shell: bash
 
@@ -63,11 +62,8 @@ jobs:
         IMAGE_NAME="ghcr.io/$REPO_OWNER/$REPO_NAME"
         docker buildx imagetools create \
           --tag $IMAGE_NAME:latest \
-          $IMAGE_NAME:linux-386 \
-          $IMAGE_NAME:linux-amd64 \
-          $IMAGE_NAME:linux-arm-v6 \
-          $IMAGE_NAME:linux-arm-v7 \
-          $IMAGE_NAME:linux-arm64-v8 \
-          $IMAGE_NAME:linux-ppc64le \
-          $IMAGE_NAME:linux-s390x
+          $IMAGE_NAME:latest-linux-386 \
+          $IMAGE_NAME:latest-linux-amd64 \
+          $IMAGE_NAME:latest-linux-arm-v7 \
+          $IMAGE_NAME:latest-linux-arm64-v8 \
       shell: bash
