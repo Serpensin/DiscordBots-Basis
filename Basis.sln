@@ -10,14 +10,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Projektmappenelemente", "Pr
 		.env = .env
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
-		docker-compose.yml.template = docker-compose.yml.template
+		docker-compose.yml = docker-compose.yml
+		.github\workflows\docker-image.yml = .github\workflows\docker-image.yml
 		LICENSE = LICENSE
 		README.md = README.md
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C8F1D888-5B30-4022-805F-D3609D531875}"
-	ProjectSection(SolutionItems) = preProject
-		.github\workflows\docker-image.yml = .github\workflows\docker-image.yml
 	EndProjectSection
 EndProject
 Global

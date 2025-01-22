@@ -14,7 +14,7 @@ services:
       TOKEN: BOT_TOKEN
       OWNER_ID: DISCORD_ID_OF_OWNER
       LOG_LEVEL: INFO
-    image: serpensin/basis
+    image: ghcr.io/serpensin/discordbots-basis
     volumes:
       - log:/app/Basis
     healthcheck:
