@@ -336,6 +336,12 @@ if platform.system() == 'Windows':
 #Functions
 class Functions():
     def format_seconds(seconds):
+        """
+        Converts a given number of seconds into a human-readable string format.
+
+        :param seconds: The total number of seconds to be converted.
+        :return: A string representing the time in years, days, hours, minutes, and seconds.
+        """
         years, remainder = divmod(seconds, 31536000)
         days, remainder = divmod(remainder, 86400)
         hours, remainder = divmod(remainder, 3600)
@@ -383,6 +389,12 @@ class Functions():
         return item_object
 
     async def create_support_invite(interaction):
+        """
+        Creates a one-time use invite link to the support guild for the user who invoked the command.
+
+        :param interaction: The interaction that triggered the command.
+        :return: A string containing the invite URL or an error message if the invite could not be created.
+        """
         try:
             guild = bot.get_guild(int(SUPPORTID))
         except ValueError:
@@ -401,7 +413,7 @@ class Functions():
         for channel in channels:
             try:
                 invite: discord.Invite = await channel.create_invite(
-                    reason=f"Created invite for {interaction.user.name} from server {interaction.guild.name} ({interaction.guild_id})",
+                    reason=f"Created invite for {interaction.user.name}" + (f" from server {interaction.guild.name} ({interaction.guild_id})" if interaction.guild and interaction.guild.name else ""),
                     max_age=60,
                     max_uses=1,
                     unique=True
@@ -563,6 +575,14 @@ class Owner():
         await message.channel.send(f'Status set to {action}.')
 
     async def shutdown(message):
+        """
+        Shuts down the bot gracefully.
+
+        This function sends a shutdown message, changes the bot's status to invisible,
+        cancels all running tasks, and closes the bot connection.
+
+        :param message: The message object that triggered the shutdown command.
+        """
         global shutdown
         _message = 'Engine powering down...'
         program_logger.info(_message)
@@ -587,6 +607,15 @@ class Owner():
 @tree.command(name = 'ping', description = 'Test, if the bot is responding.')
 @discord.app_commands.checks.cooldown(1, 30, key=lambda i: (i.user.id))
 async def self(interaction: discord.Interaction):
+    """
+    Responds with 'Pong!' and measures the command execution time and ping to the gateway.
+
+    This function is an asynchronous command handler that responds to the 'ping' command.
+    It sends a 'Pong!' message, measures the time taken to execute the command, and then
+    edits the original response to include the command execution time and the ping to the gateway.
+
+    :param interaction: The interaction that triggered the command.
+    """
     before = time.monotonic()
     await interaction.response.send_message('Pong!')
     ping = (time.monotonic() - before) * 1000
@@ -597,6 +626,17 @@ async def self(interaction: discord.Interaction):
 @tree.command(name = 'botinfo', description = 'Get information about the bot.')
 @discord.app_commands.checks.cooldown(1, 60, key=lambda i: (i.user.id))
 async def self(interaction: discord.Interaction):
+    """
+    Handles the 'botinfo' command to provide information about the bot.
+
+    This function creates an embed message containing various details about the bot,
+    such as its creation date, version, uptime, owner, server count, member count,
+    shard information, and versions of Python, discord.py, and Sentry. If the user
+    invoking the command is the bot owner, additional information about CPU and RAM
+    usage is included.
+
+    :param interaction: The interaction that triggered the command.
+    """
     member_count = sum(guild.member_count for guild in bot.guilds)
 
     embed = discord.Embed(
@@ -621,7 +661,7 @@ async def self(interaction: discord.Interaction):
         ("Python-Version", platform.python_version(), True),
         ("discord.py-Version", discord.__version__, True),
         ("Sentry-Version", sentry_sdk.consts.VERSION, True),
-        ("Repo", "[GitLab](https://gitlab.bloodygang.com/Serpensin/Discord-Bot-Base)", True),
+        ("Repo", "[GitHub](https://github.com/Serpensin/DiscordBots-Basis)", True),
         ("Invite", f"[Invite me](https://discord.com/api/oauth2/authorize?client_id={bot.user.id}&permissions=8&scope=bot)", True),
         ("\u200b", "\u200b", True)
     ]
@@ -651,23 +691,42 @@ async def self(interaction: discord.Interaction):
 @discord.app_commands.describe(nick='New nickname for me.')
 @discord.app_commands.guild_only
 async def self(interaction: discord.Interaction, nick: str):
-    await interaction.guild.me.edit(nick=nick)
-    await interaction.response.send_message(f'My new nickname is now **{nick}**.', ephemeral=True)
+   """
+   Handles the 'change_nickname' command to change the bot's nickname.
+
+   This function edits the bot's nickname in the guild where the command was invoked
+   and sends a confirmation message to the user.
+
+   :param interaction: The interaction that triggered the command.
+   :param nick: The new nickname to set for the bot.
+   """
+   await interaction.guild.me.edit(nick=nick)
+   await interaction.response.send_message(f'My new nickname is now **{nick}**.', ephemeral=True)
 
 
 #Support Invite
 @tree.command(name = 'support', description = 'Get invite to our support server.')
 @discord.app_commands.checks.cooldown(1, 60, key=lambda i: (i.user.id))
 async def support(interaction: discord.Interaction):
+    """
+    Handles the 'support' command to provide an invite to the support server.
+
+    This function checks if the command was invoked in a guild. If not, it creates and sends
+    an invite to the support server. If the command was invoked in a guild that is not the
+    support server, it also creates and sends an invite. If the command was invoked in the
+    support server, it informs the user that they are already in the support server.
+
+    :param interaction: The interaction that triggered the command.
+    """
     if interaction.guild is None:
         await interaction.response.defer(ephemeral=True)
         await interaction.followup.send(await Functions.create_support_invite(interaction), ephemeral=True)
         return
     if str(interaction.guild.id) != SUPPORTID:
-        await interaction.response.defer(ephemeral = True)
-        await interaction.followup.send(await Functions.create_support_invite(interaction), ephemeral = True)
+        await interaction.response.defer(ephemeral=True)
+        await interaction.followup.send(await Functions.create_support_invite(interaction), ephemeral=True)
     else:
-        await interaction.response.send_message('You are already in our support server!', ephemeral = True)
+        await interaction.response.send_message('You are already in our support server!', ephemeral=True)
 
 
 
