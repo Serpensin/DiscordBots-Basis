@@ -7,7 +7,7 @@ Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Basis", "Basis\Basis.pyproj
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Projektmappenelemente", "Projektmappenelemente", "{F349F465-FF67-48FE-ABA4-F5D4301FA44B}"
 	ProjectSection(SolutionItems) = preProject
-		.env = .env
+		Basis\.env = Basis\.env
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
 		docker-compose.yml = docker-compose.yml

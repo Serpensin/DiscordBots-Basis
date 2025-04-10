@@ -24,7 +24,6 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 #Init
 discord.VoiceClient.warn_nacl = False # Delete this line if you want to use voice
-load_dotenv()
 APP_FOLDER_NAME = 'BOTFOLDER'
 BOT_NAME = 'BOTNAME'
 os.makedirs(f'{APP_FOLDER_NAME}//Logs', exist_ok=True)
@@ -42,6 +41,7 @@ sentry_sdk.init(
 )
 
 #Load env
+load_dotenv()
 TOKEN = os.getenv('TOKEN')
 OWNERID = os.getenv('OWNER_ID')
 LOG_LEVEL = os.getenv('LOG_LEVEL')
@@ -294,8 +294,9 @@ tree.on_error = bot.on_app_command_error
 
 
 #Load Modules
-from CustomModules import context_commands
+from CustomModules import context_commands, nickname
 context_commands.setup(tree)
+nickname.setup(bot, tree, program_logger)
 
 
 
@@ -682,26 +683,6 @@ async def self(interaction: discord.Interaction):
         embed.add_field(name=name, value=value, inline=inline)
 
     await interaction.response.send_message(embed=embed)
-
-
-#Change Nickname
-@tree.command(name = 'change_nickname', description = 'Change the nickname of the bot.')
-@discord.app_commands.checks.cooldown(1, 60, key=lambda i: (i.guild_id))
-@discord.app_commands.checks.has_permissions(manage_nicknames = True)
-@discord.app_commands.describe(nick='New nickname for me.')
-@discord.app_commands.guild_only
-async def self(interaction: discord.Interaction, nick: str):
-   """
-   Handles the 'change_nickname' command to change the bot's nickname.
-
-   This function edits the bot's nickname in the guild where the command was invoked
-   and sends a confirmation message to the user.
-
-   :param interaction: The interaction that triggered the command.
-   :param nick: The new nickname to set for the bot.
-   """
-   await interaction.guild.me.edit(nick=nick)
-   await interaction.response.send_message(f'My new nickname is now **{nick}**.', ephemeral=True)
 
 
 #Support Invite
