@@ -699,6 +699,9 @@ async def support(interaction: discord.Interaction):
 
     :param interaction: The interaction that triggered the command.
     """
+    if not SUPPORTID:
+        await interaction.response.send_message('There is no support server setup!', ephemeral=True)
+        return
     if interaction.guild is None:
         await interaction.response.defer(ephemeral=True)
         await interaction.followup.send(await Functions.create_support_invite(interaction), ephemeral=True)
