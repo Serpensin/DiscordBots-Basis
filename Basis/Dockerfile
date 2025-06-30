@@ -30,6 +30,6 @@ LABEL maintainer="Discord: piko.piko.no.mi (970119359840284743)" \
       description="Basic discord.py setup." \
       release=$BUILD_DATE \
       VERSION="1.0.0" \
-      url="https://gitlab.bloodygang.com/Serpensin/Basis"
+      url="https://github.com/Serpensin/DiscordBots-Basis"
 
 CMD ["python3", "main.py"]
