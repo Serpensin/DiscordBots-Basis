@@ -663,7 +663,7 @@ async def self(interaction: discord.Interaction):
         ("discord.py-Version", discord.__version__, True),
         ("Sentry-Version", sentry_sdk.consts.VERSION, True),
         ("Repo", "[GitHub](https://github.com/Serpensin/DiscordBots-Basis)", True),
-        ("Invite", f"[Invite me](https://discord.com/api/oauth2/authorize?client_id={bot.user.id}&permissions=8&scope=bot)", True),
+        ("Invite", f"[Invite me](https://discord.com/api/oauth2/authorize?client_id={bot.user.id})", True),
         ("\u200b", "\u200b", True)
     ]
 
