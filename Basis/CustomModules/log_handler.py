@@ -13,7 +13,7 @@ class LogManager:
         app_folder_name (str): The name of the application, used for naming the log file.
         log_level (int): The logging level (e.g., logging.INFO).
     """
-    def __init__(self, log_folder, app_folder_name, log_level='INFO'):
+    def __init__(self, log_folder, app_folder_name, log_level='INFO') -> None:
         """
         Initializes the LogManager with the specified log folder, application folder name, and log level.
 
@@ -30,7 +30,7 @@ class LogManager:
         except:
             self.log_level = logging.INFO
     
-    def _get_log_level(self, log_level_str):
+    def _get_log_level(self, log_level_str) -> int:
         """
         Converts a log level string to the corresponding logging level.
 
@@ -53,7 +53,7 @@ class LogManager:
         else:
             raise ValueError(f"Invalid log level: {log_level_str}")
     
-    def get_logger(self, logger_name):
+    def get_logger(self, logger_name) -> logging.Logger:
         """
         Creates and configures a logger with file and console handlers.
 
@@ -110,7 +110,7 @@ class ColoredFormatter(logging.Formatter):
         'CRITICAL': Fore.MAGENTA,
     }
 
-    def format(self, record):
+    def format(self, record) -> str:
         """
         Formats the log record with color based on the log level.
 

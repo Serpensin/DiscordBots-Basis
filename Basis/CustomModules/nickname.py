@@ -3,7 +3,7 @@ import logging
 
 __name__ = "Nickname"
 
-def setup(client: discord.Client, tree: discord.app_commands.CommandTree, logger: logging.Logger = None):
+def setup(client: discord.Client, tree: discord.app_commands.CommandTree, logger: logging.Logger = None) -> None:
     """
     Sets up the Nickname module by registering the command and initializing the logger.
 
@@ -35,7 +35,7 @@ def setup(client: discord.Client, tree: discord.app_commands.CommandTree, logger
 @discord.app_commands.checks.has_permissions(manage_nicknames=True)
 @discord.app_commands.describe(nick='New nickname for me.')
 @discord.app_commands.guild_only
-async def _change_nickname(interaction: discord.Interaction, nick: str):
+async def _change_nickname(interaction: discord.Interaction, nick: str) -> None:
     """
     Handles the 'change_nickname' command to change the bot's nickname.
 

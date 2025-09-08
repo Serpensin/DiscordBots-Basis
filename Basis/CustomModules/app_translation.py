@@ -3,7 +3,7 @@ from typing import Optional
 
 
 class Translator(discord.app_commands.Translator):
-    def __init__(self):
+    def __init__(self) -> None:
         self.translations = {
             discord.Locale.german: {
                 "Test, if the bot is responding.": "Teste, ob der Bot antwortet.",
@@ -19,7 +19,7 @@ class Translator(discord.app_commands.Translator):
                 }
         }
 
-    async def load(self):
+    async def load(self) -> None:
         pass
 
     async def translate(self,

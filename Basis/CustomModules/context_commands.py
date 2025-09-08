@@ -21,5 +21,5 @@ async def user_info(interaction: discord.Interaction, member: discord.Member):
     
 
 # Add the command to the bot's tree
-def setup(tree):
+def setup(tree) -> None:
     tree.add_command(user_info)

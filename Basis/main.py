@@ -81,7 +81,7 @@ class JSONValidator:
     def __init__(self, file_path):
         self.file_path = file_path
 
-    def validate_and_fix_json(self):
+    def validate_and_fix_json(self) -> None:
         if os.path.exists(self.file_path):
             with open(self.file_path, 'r', encoding='utf-8') as file:
                 try:
@@ -93,7 +93,7 @@ class JSONValidator:
         else:
             self.write_default_content()
 
-    def write_default_content(self):
+    def write_default_content(self) -> None:
         with open(self.file_path, 'w', encoding='utf-8') as file:
             json.dump(self.default_content, file, indent=4)
 JSONValidator(ACTIVITY_FILE).validate_and_fix_json()
@@ -216,12 +216,12 @@ class aclient(discord.AutoShardedClient):
                     )
                 sentry_sdk.capture_exception(error)
 
-    async def on_guild_join(self, guild):
+    async def on_guild_join(self, guild) -> None:
         if not self.synced:
             return
         discord_logger.info(f'I joined {guild}. (ID: {guild.id})')
 
-    async def on_message(self, message):
+    async def on_message(self, message) -> None:
         async def __wrong_selection():
             await message.channel.send('```'
                                        'Commands:\n'
@@ -255,12 +255,12 @@ class aclient(discord.AutoShardedClient):
                 case _:
                     await __wrong_selection()
 
-    async def on_guild_remove(self, guild):
+    async def on_guild_remove(self, guild) -> None:
         if not self.synced:
             return
         program_logger.info(f'I got kicked from {guild}. (ID: {guild.id})')
 
-    async def setup_hook(self):
+    async def setup_hook(self) -> None:
         global owner, shutdown
         shutdown = False
         try:
@@ -278,7 +278,7 @@ class aclient(discord.AutoShardedClient):
         discord_logger.info('Synced.')
         self.synced = True
 
-    async def on_ready(self):
+    async def on_ready(self) -> None:
         await bot.change_presence(activity = self.Presence.get_activity(), status = self.Presence.get_status())
         if self.initialized:
             return
@@ -301,7 +301,7 @@ nickname.setup(bot, tree, program_logger)
 
 
 class Tasks():
-    async def health_server():
+    async def health_server() -> None:
         async def __health_check(request):
             return web.Response(text="Healthy")
 
@@ -318,11 +318,11 @@ class Tasks():
 
 
 class SignalHandler:
-    def __init__(self):
+    def __init__(self) -> None:
         signal.signal(signal.SIGINT, self._shutdown)
         signal.signal(signal.SIGTERM, self._shutdown)
 
-    def _shutdown(self, signum, frame):
+    def _shutdown(self, signum, frame) -> None:
         program_logger.info('Received signal to shutdown...')
         bot.loop.create_task(Owner.shutdown(owner))
 
@@ -336,7 +336,7 @@ if platform.system() == 'Windows':
 
 #Functions
 class Functions():
-    def format_seconds(seconds):
+    def format_seconds(seconds: int) -> str:
         """
         Converts a given number of seconds into a human-readable string format.
 
@@ -389,7 +389,7 @@ class Functions():
                 pass
         return item_object
 
-    async def create_support_invite(interaction):
+    async def create_support_invite(interaction) -> str:
         """
         Creates a one-time use invite link to the support guild for the user who invoked the command.
 
@@ -430,7 +430,7 @@ class Functions():
 
 ##Owner Commands
 class Owner():
-    async def log(message, args):
+    async def log(message, args) -> None:
         async def __wrong_selection():
             await message.channel.send('```'
                                        'log [current/folder/lines] (Replace lines with a positive number, if you only want lines.) - Get the log\n'
@@ -491,7 +491,7 @@ class Owner():
         await message.channel.send(content=f'Here are the last {len(log_lines)} lines of the current logfile:', file=discord.File(buffer_file_path))
         os.remove(buffer_file_path)
 
-    async def activity(message, args):
+    async def activity(message, args) -> None:
         async def __wrong_selection():
             await message.channel.send('```'
                                        'activity [playing/streaming/listening/watching/competing] [title] (url) - Set the activity of the bot\n'
@@ -547,7 +547,7 @@ class Owner():
         await bot.change_presence(activity = bot.Presence.get_activity(), status = bot.Presence.get_status())
         await message.channel.send(f'Activity set to {action} {title}{" " + url if url else ""}.')
 
-    async def status(message, args):
+    async def status(message, args) -> None:
         async def __wrong_selection():
             await message.channel.send('```'
                                        'status [online/idle/dnd/invisible] - Set the status of the bot\n'
@@ -575,7 +575,7 @@ class Owner():
         await bot.change_presence(activity = bot.Presence.get_activity(), status = bot.Presence.get_status())
         await message.channel.send(f'Status set to {action}.')
 
-    async def shutdown(message):
+    async def shutdown(message) -> None:
         """
         Shuts down the bot gracefully.
 
@@ -607,7 +607,7 @@ class Owner():
 #Ping
 @tree.command(name = 'ping', description = 'Test, if the bot is responding.')
 @discord.app_commands.checks.cooldown(1, 30, key=lambda i: (i.user.id))
-async def self(interaction: discord.Interaction):
+async def self(interaction: discord.Interaction) -> None:
     """
     Responds with 'Pong!' and measures the command execution time and ping to the gateway.
 
@@ -626,7 +626,7 @@ async def self(interaction: discord.Interaction):
 #Bot Info
 @tree.command(name = 'botinfo', description = 'Get information about the bot.')
 @discord.app_commands.checks.cooldown(1, 60, key=lambda i: (i.user.id))
-async def self(interaction: discord.Interaction):
+async def self(interaction: discord.Interaction) -> None:
     """
     Handles the 'botinfo' command to provide information about the bot.
 
@@ -688,7 +688,7 @@ async def self(interaction: discord.Interaction):
 #Support Invite
 @tree.command(name = 'support', description = 'Get invite to our support server.')
 @discord.app_commands.checks.cooldown(1, 60, key=lambda i: (i.user.id))
-async def support(interaction: discord.Interaction):
+async def support(interaction: discord.Interaction) -> None:
     """
     Handles the 'support' command to provide an invite to the support server.
 
