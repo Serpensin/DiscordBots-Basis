@@ -617,10 +617,12 @@ async def self(interaction: discord.Interaction) -> None:
 
     :param interaction: The interaction that triggered the command.
     """
+    await interaction.response.defer(thinking=True)
+
     before = time.monotonic()
-    await interaction.response.send_message('Pong!')
+    await interaction.followup.send('Pong!')
     ping = (time.monotonic() - before) * 1000
-    await interaction.edit_original_response(content=f'Pong! \nCommand execution time: `{int(ping)}ms`\nPing to gateway: `{int(bot.latency * 1000)}ms`')
+    await interaction.edit_original_response(content=f'Pong! \nCommand execution time: `{Functions.safe_int(ping)}ms`\nPing to gateway: `{Functions.safe_int(bot.latency * 1000 if interaction.guild is None else bot.shards.get(interaction.guild.shard_id).latency * 1000)}ms`')
 
 
 #Bot Info
@@ -638,6 +640,8 @@ async def self(interaction: discord.Interaction) -> None:
 
     :param interaction: The interaction that triggered the command.
     """
+    await interaction.response.defer(thinking=True)
+
     member_count = sum(guild.member_count for guild in bot.guilds)
 
     embed = discord.Embed(
@@ -682,7 +686,7 @@ async def self(interaction: discord.Interaction) -> None:
     for name, value, inline in embed_fields:
         embed.add_field(name=name, value=value, inline=inline)
 
-    await interaction.response.send_message(embed=embed)
+    await interaction.followup.send(embed=embed)
 
 
 #Support Invite
@@ -699,18 +703,18 @@ async def support(interaction: discord.Interaction) -> None:
 
     :param interaction: The interaction that triggered the command.
     """
+    await interaction.response.defer(thinking=True)
+
     if not SUPPORTID:
-        await interaction.response.send_message('There is no support server setup!', ephemeral=True)
+        await interaction.followup.send('There is no support server setup!', ephemeral=True)
         return
     if interaction.guild is None:
-        await interaction.response.defer(ephemeral=True)
         await interaction.followup.send(await Functions.create_support_invite(interaction), ephemeral=True)
         return
     if str(interaction.guild.id) != SUPPORTID:
-        await interaction.response.defer(ephemeral=True)
         await interaction.followup.send(await Functions.create_support_invite(interaction), ephemeral=True)
     else:
-        await interaction.response.send_message('You are already in our support server!', ephemeral=True)
+        await interaction.followup.send('You are already in our support server!', ephemeral=True)
 
 
 

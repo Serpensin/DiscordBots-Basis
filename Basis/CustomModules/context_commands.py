@@ -6,6 +6,8 @@ import discord
 @discord.app_commands.context_menu(name="User Info")
 @discord.app_commands.checks.cooldown(1, 30, key=lambda i: (i.guild_id, i.data['target_id']))
 async def user_info(interaction: discord.Interaction, member: discord.Member):
+    await interaction.response.defer(ephemeral=True)
+
     # Create an embed with user information
     embed = discord.Embed(title=f"User Info: {member.name}", color=discord.Color.blue())
     embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
@@ -17,7 +19,7 @@ async def user_info(interaction: discord.Interaction, member: discord.Member):
     embed.add_field(name="Created Account", value=member.created_at.strftime("%Y-%m-%d %H:%M:%S"), inline=True)
 
     # Send the embed as a response to the interaction
-    await interaction.response.send_message(embed=embed, ephemeral=True)
+    await interaction.followup.send(embed=embed, ephemeral=True)
     
 
 # Add the command to the bot's tree
