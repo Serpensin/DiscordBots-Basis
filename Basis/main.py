@@ -607,7 +607,7 @@ class Owner():
 #Ping
 @tree.command(name = 'ping', description = 'Test, if the bot is responding.')
 @discord.app_commands.checks.cooldown(1, 30, key=lambda i: (i.user.id))
-async def self(interaction: discord.Interaction) -> None:
+async def cmd_ping(interaction: discord.Interaction) -> None:
     """
     Responds with 'Pong!' and measures the command execution time and ping to the gateway.
 
@@ -622,13 +622,14 @@ async def self(interaction: discord.Interaction) -> None:
     before = time.monotonic()
     await interaction.followup.send('Pong!')
     ping = (time.monotonic() - before) * 1000
-    await interaction.edit_original_response(content=f'Pong! \nCommand execution time: `{Functions.safe_int(ping)}ms`\nPing to gateway: `{Functions.safe_int(bot.latency * 1000 if interaction.guild is None else bot.shards.get(interaction.guild.shard_id).latency * 1000)}ms`')
+    gateway_ping = bot.latency * 1000 if interaction.guild is None else bot.shards.get(interaction.guild.shard_id).latency * 1000
+    await interaction.edit_original_response(content=f'Pong! \nCommand execution time: `{ping:.2f}ms`\nPing to gateway: `{gateway_ping:.2f}ms`')
 
 
 #Bot Info
 @tree.command(name = 'botinfo', description = 'Get information about the bot.')
 @discord.app_commands.checks.cooldown(1, 60, key=lambda i: (i.user.id))
-async def self(interaction: discord.Interaction) -> None:
+async def cmd_botinfo(interaction: discord.Interaction) -> None:
     """
     Handles the 'botinfo' command to provide information about the bot.
 
@@ -692,7 +693,7 @@ async def self(interaction: discord.Interaction) -> None:
 #Support Invite
 @tree.command(name = 'support', description = 'Get invite to our support server.')
 @discord.app_commands.checks.cooldown(1, 60, key=lambda i: (i.user.id))
-async def support(interaction: discord.Interaction) -> None:
+async def cmd_support(interaction: discord.Interaction) -> None:
     """
     Handles the 'support' command to provide an invite to the support server.
 
