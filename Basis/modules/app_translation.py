@@ -1,5 +1,6 @@
-﻿import discord
-from typing import Optional
+﻿from typing import Optional
+
+import discord
 
 
 class Translator(discord.app_commands.Translator):
@@ -9,23 +10,25 @@ class Translator(discord.app_commands.Translator):
                 "Test, if the bot is responding.": "Teste, ob der Bot antwortet.",
                 "Get information about the bot.": "Erhalte Informationen über den Bot.",
                 "change_nickname": "nickname_ändern",
-                },
+            },
             discord.Locale.japanese: {
                 "ping": "ピング",
                 "Test, if the bot is responding.": "ボットが応答しているかテストします。",
                 "botinfo": "ボット情報",
                 "Get information about the bot.": "ボットに関する情報を取得します。",
                 "change_nickname": "ニックネームを変更する",
-                }
+            },
         }
 
     async def load(self) -> None:
         pass
 
-    async def translate(self,
-                        string: discord.app_commands.locale_str,
-                        locale: discord.Locale,
-                        context: discord.app_commands.TranslationContext) -> Optional[str]:
+    async def translate(
+        self,
+        string: discord.app_commands.locale_str,
+        locale: discord.Locale,
+        context: discord.app_commands.TranslationContext,
+    ) -> Optional[str]:
         """
         `locale_str` is the string that is requesting to be translated
         `locale` is the target language to translate to

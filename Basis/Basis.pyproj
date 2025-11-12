@@ -24,12 +24,11 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CustomModules\app_translation.py" />
-    <Compile Include="CustomModules\context_commands.py" />
-    <Compile Include="CustomModules\log_handler.py" />
-    <Compile Include="CustomModules\nickname.py" />
     <Compile Include="Dockerfile" />
     <Compile Include="main.py" />
+    <Compile Include="modules\app_translation.py" />
+    <Compile Include="modules\context_commands.py" />
+    <Compile Include="modules\nickname.py" />
     <Compile Include="__init__.py" />
   </ItemGroup>
   <ItemGroup>
@@ -38,7 +37,7 @@
     <Content Include="requirements.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="CustomModules\" />
+    <Folder Include="modules\" />
   </ItemGroup>
   <ItemGroup>
     <Interpreter Include="env\">
