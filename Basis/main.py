@@ -447,17 +447,18 @@ class Functions:
         channels: discord.TextChannel = guild.text_channels
         for channel in channels:
             try:
+                if interaction.guild is not None:
+                    reason=f"Created invite for {interaction.user.name} from server {interaction.guild.name} ({interaction.guild_id})"
+                else:
+                    reason=f"Created invite for {interaction.user.name} (DM)"
+
                 invite: discord.Invite = await channel.create_invite(
-                    reason=f"Created invite for {interaction.user.name}"
-                    + (
-                        f" from server {interaction.guild.name} ({interaction.guild_id})"
-                        if interaction.guild and interaction.guild.name
-                        else ""
-                    ),
+                    reason=reason,
                     max_age=60,
                     max_uses=1,
-                    unique=True,
+                    unique=True
                 )
+
                 return invite.url
             except discord.Forbidden:
                 continue
